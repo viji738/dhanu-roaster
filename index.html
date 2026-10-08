@@ -1,0 +1,4164 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Powered Automatic Roster Management System</title>
+
+<style>
+*{box-sizing:border-box}
+
+:root{
+  --primary:#afc7f4;
+  --primary-dark:#102a56;
+  --secondary:#7c3aed;
+  --bg:#f3f6fb;
+  --card:#ffffff;
+  --text:#1f2937;
+  --muted:#667085;
+  --border:#e4e7ec;
+
+  --day:#f59e0b;
+  --day-light:#fff3cd;
+
+  --night:#4f46e5;
+  --night-light:#e0e7ff;
+
+  --off:#ef4444;
+  --off-light:#fee2e2;
+
+  --success:#16a34a;
+  --danger:#dc2626;
+}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:
+    radial-gradient(circle at top right,#e8f0ff 0,transparent 30%),
+    var(--bg);
+  color:var(--text);
+}
+
+button,input,select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* ================= LOGIN ================= */
+
+#authScreen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 20% 20%,#60a5fa55,transparent 30%),
+    radial-gradient(circle at 80% 80%,#a78bfa55,transparent 30%),
+    linear-gradient(135deg,#102a56,#1769ff,#7c3aed);
+}
+
+.auth-card{
+  width:410px;
+  max-width:92%;
+  background:rgba(255,255,255,.97);
+  border-radius:22px;
+  padding:32px;
+  box-shadow:0 25px 70px #0005;
+}
+
+.auth-logo{
+  text-align:center;
+  font-size:42px;
+  margin-bottom:5px;
+}
+
+.auth-card h1{
+  text-align:center;
+  margin:0 0 8px;
+  color:#173f8a;
+}
+
+.auth-card p{
+  text-align:center;
+  color:#667085;
+}
+
+.auth-card input,
+.auth-card select{
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  border:1px solid #d0d5dd;
+  border-radius:9px;
+  outline:none;
+  transition:.2s;
+}
+
+.auth-card input:focus,
+.auth-card select:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px #1769ff22;
+}
+
+.auth-btn{
+  width:100%;
+  padding:13px;
+  border:0;
+  border-radius:9px;
+  background:linear-gradient(135deg,#1769ff,#7c3aed);
+  color:white;
+  font-weight:bold;
+  margin-top:10px;
+  transition:.2s;
+}
+
+.auth-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px #1769ff44;
+}
+
+.auth-switch{
+  text-align:center;
+  margin-top:16px;
+  color:#1769ff;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+#loginMessage,
+#registerMessage{
+  display:block;
+  margin-top:10px;
+  text-align:center;
+}
+
+/* ================= APP ================= */
+
+#app{
+  display:none;
+  min-height:100vh;
+}
+
+.sidebar{
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  width:250px;
+  background:
+    linear-gradient(180deg,#102a56 0%,#173f8a 55%,#312e81 100%);
+  color:white;
+  padding:20px 12px;
+  overflow:auto;
+  box-shadow:5px 0 25px #0002;
+  z-index:10;
+}
+
+.logo{
+  font-size:20px;
+  font-weight:bold;
+  padding:10px 12px 25px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.logo span{
+  background:#ffffff20;
+  padding:8px;
+  border-radius:10px;
+}
+
+.menu{
+  padding:12px 14px;
+  margin:14px 14px 5px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:.2s;
+  color:#eaf1ff;
+}
+
+.menu:hover{
+  background:#ffffff18;
+  transform:translateX(3px);
+}
+
+.menu.active{
+  background:linear-gradient(135deg,#1769ff,#7c3aed);
+  box-shadow:0 5px 15px #0003;
+}
+
+.menu-section{
+  font-size:10px;    
+  color:#b9c7e4;
+  margin:20px 14px 7px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-weight:bold;
+}
+
+.badge{
+  float:right;
+  background:#ef4444;
+  padding:3px 7px;
+  border-radius:20px;
+  font-size:10px;
+  color:white;
+}
+
+.main{
+  margin-left:250px;
+  min-height:100vh;
+  padding:25px;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:22px;
+  gap:15px;
+}
+
+.topbar h1{
+  margin:0;
+  color:#173f8a;
+}
+
+.user-chip{
+  background:white;
+  padding:10px 15px;
+  border-radius:22px;
+  box-shadow:0 3px 12px #0001;
+  font-weight:bold;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+/* ================= CARDS ================= */
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+}
+
+.card,
+.form-card,
+.table-card,
+.feature-card,
+.chart-card{
+  background:rgba(255,255,255,.95);
+  border-radius:15px;
+  padding:20px;
+  box-shadow:0 4px 18px #0000000b;
+  border:1px solid #ffffff;
+}
+
+.card{
+  position:relative;
+  overflow:hidden;
+  transition:.25s;
+}
+
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 10px 25px #0002;
+}
+
+.card:nth-child(1){
+  border-left:5px solid #1769ff;
+}
+
+.card:nth-child(2){
+  border-left:5px solid #f59e0b;
+}
+
+.card:nth-child(3){
+  border-left:5px solid #4f46e5;
+}
+
+.card:nth-child(4){
+  border-left:5px solid #ef4444;
+}
+
+.card h3{
+  margin:0;
+  color:#667085;
+  font-size:14px;
+}
+
+.card strong{
+  font-size:30px;
+  display:block;
+  margin-top:8px;
+  color:#173f8a;
+}
+
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-top:18px;
+}
+
+.grid3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+  margin-top:18px;
+}
+
+.weekoff-group{
+  padding:16px;
+  border:1px solid #e4e7ec;
+  border-radius:12px;
+  background:linear-gradient(135deg,#f8fbff,#f5f3ff);
+}
+.weekoff-group strong{font-size:22px;color:#173f8a}
+.weekoff-days{display:block;margin-top:7px;font-weight:bold;color:#475467}
+.gender-male{background:#dbeafe;color:#1d4ed8}
+.gender-female{background:#fce7f3;color:#be185d}
+
+
+/* ================= FORMS ================= */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.field label{
+  display:block;
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:5px;
+}
+
+.field input,
+.field select{
+  width:100%;
+  padding:10px;
+  border:1px solid #d0d5dd;
+  border-radius:8px;
+  background:white;
+  outline:none;
+}
+
+.field input:focus,
+.field select:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px #1769ff18;
+}
+
+.action-btn{
+  border:0;
+  border-radius:8px;
+  padding:10px 16px;
+  background:linear-gradient(135deg,#1769ff,#2563eb);
+  color:white;
+  font-weight:bold;
+  transition:.2s;
+}
+
+.action-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 15px #1769ff33;
+}
+
+.success{
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+}
+
+.danger{
+  background:linear-gradient(135deg,#dc2626,#ef4444);
+}
+
+.secondary{
+  background:#667085;
+}
+
+.warning{
+  background:linear-gradient(135deg,#f59e0b,#f97316);
+  color:white;
+}
+
+.small-btn{
+  padding:7px 11px;
+  border:0;
+  border-radius:6px;
+  color:white;
+  background:#1769ff;
+  font-size:12px;
+  font-weight:bold;
+}
+
+
+/* Employee Profile subdivisions */
+
+.employee-role-tabs{
+  display:flex;
+  gap:8px;
+  margin-top:16px;
+  padding:5px;
+  background:#f4f7fb;
+  border-radius:11px;
+}
+.employee-role-tab{
+  flex:1;
+  border:0;
+  border-radius:8px;
+  padding:10px 8px;
+  background:transparent;
+  color:#53657d;
+  font-weight:800;
+  font-size:11px;
+  cursor:pointer;
+}
+.employee-role-tab.active{
+  background:#173f8a;
+  color:#fff;
+}
+
+.profile-subdivision-tabs{
+  display:flex;
+  gap:10px;
+  margin-top:22px;
+  padding:6px;
+  background:#f4f7fb;
+  border-radius:12px;
+}
+.profile-tab{
+  flex:1;
+  border:0;
+  border-radius:9px;
+  padding:11px 14px;
+  font-weight:800;
+  font-size:12px;
+  letter-spacing:.4px;
+  cursor:pointer;
+  background:transparent;
+  color:#53657d;
+  transition:.2s ease;
+}
+.profile-tab:hover{
+  background:#e8eef7;
+}
+.profile-tab.active{
+  background:#173f8a;
+  color:#fff;
+  box-shadow:0 3px 10px rgba(23,63,138,.18);
+}
+.profile-subdivision-panel{
+  margin-top:18px;
+  padding:16px;
+  border:1px solid #e1e8f1;
+  border-radius:12px;
+  background:#fbfcfe;
+}
+.profile-subdivision-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+  font-weight:800;
+  color:#173f8a;
+}
+.profile-subdivision-title small{
+  color:#6b7b91;
+  font-weight:500;
+  font-size:11px;
+}
+
+.form-actions{
+  margin-top:18px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+/* ================= TABLE ================= */
+
+.table-wrap{
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+th,td{
+  padding:12px;
+  border-bottom:1px solid #eaecf0;
+  text-align:left;
+  white-space:nowrap;
+}
+
+th{
+  background:linear-gradient(135deg,#eff6ff,#f5f3ff);
+  color:#475467;
+  font-size:13px;
+}
+
+tbody tr{
+  transition:.15s;
+}
+
+tbody tr:hover{
+  background:#f8fbff;
+}
+
+.empty{
+  text-align:center;
+  color:#667085;
+  padding:25px;
+}
+
+/* ================= ROLE BADGES ================= */
+
+.role-badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.role-manager{
+  background:#fce7f3;
+  color:#be185d;
+}
+
+.role-tl{
+  background:#ede9fe;
+  color:#6d28d9;
+}
+
+.role-associate{
+  background:#dbeafe;
+  color:#1d4ed8;
+}
+
+.role-pa{
+  background:#dcfce7;
+  color:#15803d;
+}
+
+/* ================= STATUS ================= */
+
+.status-badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.status-active{
+  background:#dcfce7;
+  color:#15803d;
+}
+
+.status-leave{
+  background:#fef3c7;
+  color:#b45309;
+}
+
+.status-inactive{
+  background:#fee2e2;
+  color:#b91c1c;
+}
+
+/* ================= CHARTS ================= */
+
+.bar-chart{
+  height:230px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-around;
+  border-bottom:1px solid #d0d5dd;
+  padding:15px;
+  gap:20px;
+}
+
+.bar{
+  width:55px;
+  background:linear-gradient(180deg,#1769ff,#60a5fa);
+  border-radius:8px 8px 0 0;
+  position:relative;
+  min-height:5px;
+  transition:.3s;
+}
+
+.bar:hover{
+  filter:brightness(1.08);
+  transform:scaleY(1.03);
+}
+
+.bar span{
+  position:absolute;
+  bottom:100%;
+  left:50%;
+  transform:translateX(-50%);
+  font-weight:bold;
+  font-size:12px;
+  margin-bottom:4px;
+}
+
+.labels{
+  display:flex;
+  justify-content:space-around;
+  color:#667085;
+  font-size:12px;
+  margin-top:8px;
+}
+
+/* ================= AI ================= */
+
+.ai-message{
+  background:linear-gradient(135deg,#eef5ff,#f5f3ff);
+  border-left:4px solid #1769ff;
+  padding:15px;
+  border-radius:9px;
+}
+
+.suggestion{
+  background:#f8fafc;
+  border:1px solid #eaecf0;
+  padding:11px;
+  border-radius:8px;
+  margin:8px 0;
+}
+
+/* ================= NOTIFICATIONS ================= */
+
+.notification{
+  display:flex;
+  gap:12px;
+  padding:14px;
+  border-bottom:1px solid #eaecf0;
+}
+
+.notification.unread{
+  background:#eef5ff;
+}
+
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#1769ff;
+  margin-top:6px;
+  flex:none;
+}
+
+/* ================= PROFILE ================= */
+
+.profile-head{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.avatar{
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#1769ff,#7c3aed);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:25px;
+  font-weight:bold;
+  box-shadow:0 8px 20px #1769ff33;
+}
+
+/* ================= ROSTER ================= */
+
+.roster-table th,
+.roster-table td{
+  text-align:center;
+}
+
+.roster-table th:first-child,
+.roster-table td:first-child{
+  text-align:left;
+}
+
+.shift-day{
+  background:linear-gradient(135deg,#fff3cd,#fde68a)!important;
+  color:#92400e!important;
+  font-weight:bold;
+  border-left:1px solid #f59e0b;
+  border-right:1px solid #f59e0b;
+}
+
+.shift-night{
+  background:linear-gradient(135deg,#e0e7ff,#c7d2fe)!important;
+  color:#3730a3!important;
+  font-weight:bold;
+  border-left:1px solid #6366f1;
+  border-right:1px solid #6366f1;
+}
+
+.shift-off{
+  background:linear-gradient(135deg,#fee2e2,#fecaca)!important;
+  color:#991b1b!important;
+  font-weight:bold;
+  border-left:1px solid #ef4444;
+  border-right:1px solid #ef4444;
+}
+
+/* Shift legend */
+
+.shift-legend{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:15px;
+}
+
+.legend-item{
+  padding:7px 12px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.legend-day{
+  background:#fff3cd;
+  color:#92400e;
+}
+
+.legend-night{
+  background:#e0e7ff;
+  color:#3730a3;
+}
+
+.legend-off{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+/* ================= MODAL ================= */
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:#0008;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:20;
+  padding:15px;
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-card{
+  background:white;
+  width:min(520px,92%);
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 25px 60px #0005;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1000px){
+
+  .sidebar{
+
+
+    overscroll-behavior:contain;
+    scrollbar-width:thin;
+    width:210px;
+  }
+
+  .main{
+    margin-left:210px;
+  }
+
+  .cards{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .grid2,
+  .grid3{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:700px){
+
+  .sidebar{
+    position:relative;
+    width:100%;
+    height:auto;
+  }
+
+  .main{
+    margin-left:0;
+    padding:15px;
+  }
+
+  .form-grid,
+  .cards{
+    grid-template-columns:1fr;
+  }
+
+  .topbar{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}
+
+
+/* ================= SECTION ALIGNMENT / COMPACT LAYOUT ================= */
+#employeesPage,
+#availabilityPage,
+#aiPage,
+#notificationsPage,
+#profilePage{
+width:100%;max-width:100%;}
+
+#employeesPage .topbar,
+#availabilityPage .topbar,
+#aiPage .topbar,
+#notificationsPage .topbar{margin-bottom:16px;align-items:center;}
+
+#employeesPage .topbar h1,
+#availabilityPage .topbar h1,
+#aiPage .topbar h1,
+#notificationsPage .topbar h1{font-size:24px;line-height:1.2;}
+
+#employeesPage .ai-message{padding:13px 15px;margin-bottom:14px!important;line-height:1.5;}
+#employeesPage .overview-toolbar{margin:8px 0 12px!important;padding:10px 12px;background:#f8fafc;border:1px solid #e4e7ec;border-radius:10px;}
+
+#employeesPage .form-card,
+#availabilityPage .form-card,
+#notificationsPage .table-card{padding:16px;}
+
+#employeesPage .form-grid,
+#availabilityPage .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;}
+
+#employeesPage .field input,
+#employeesPage .field select,
+#availabilityPage .field input,
+#availabilityPage .field select{height:40px;padding:9px 11px;}
+
+#employeesPage .table-card,
+#availabilityPage .table-card{margin-top:14px!important;padding:14px;}
+#employeesPage table,
+#availabilityPage table{margin-top:0;font-size:13px;}
+#employeesPage th,#employeesPage td,
+#availabilityPage th,#availabilityPage td{padding:10px 11px;vertical-align:middle;}
+#employeesPage th,#availabilityPage th{font-size:12px;}
+#employeesPage .small-btn,#availabilityPage .small-btn{padding:7px 10px;font-size:11px;white-space:nowrap;}
+
+#aiPage .grid2{grid-template-columns:minmax(0,1.35fr) minmax(300px,.85fr);gap:16px;margin-top:0;align-items:stretch;}
+#aiPage .feature-card{padding:18px;min-width:0;}
+#aiPage .feature-card h3{margin:0 0 12px;font-size:16px;color:#173f8a;}
+#aiPage .ai-message{min-height:120px;line-height:1.55;}
+#aiPage .suggestion{margin:7px 0;padding:10px 12px;line-height:1.4;}
+
+#notificationsPage .table-card{padding:0;overflow:hidden;}
+#notificationsPage #notificationList{max-height:calc(100vh - 190px);overflow:auto;}
+#notificationsPage .notification{padding:13px 16px;line-height:1.45;}
+#notificationsPage .notification b{font-size:13px;color:#173f8a;}
+#notificationsPage .notification small{display:block;margin-top:3px;color:#667085;}
+
+/* Keep action controls aligned and prevent oversized buttons. */
+#employeesPage .form-actions,
+#availabilityPage .form-actions{margin-top:14px;}
+#employeesPage .action-btn,
+#availabilityPage .action-btn,
+#aiPage .action-btn,
+#notificationsPage .action-btn{padding:9px 14px;font-size:13px;}
+
+@media(max-width:900px){
+  #aiPage .grid2{grid-template-columns:1fr;}
+}
+@media(max-width:700px){
+  #employeesPage .form-grid,
+  #availabilityPage .form-grid{grid-template-columns:1fr;}
+  #employeesPage .topbar h1,
+  #availabilityPage .topbar h1,
+  #aiPage .topbar h1,
+  #notificationsPage .topbar h1{font-size:21px;}
+}
+
+/* ================= NEW ROSTER / COMPLIANCE / CAB UI ================= */
+.overview-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.overview-toolbar .muted{color:#667085;font-size:13px}
+.overview-table th,.overview-table td{text-align:center;font-size:12px;padding:9px 8px}
+.overview-table th:first-child,.overview-table td:first-child{text-align:left}
+.overview-table .section-row td{background:#d9edf7;font-weight:800;color:#173f8a}
+.overview-table .total-row td{background:#d9edf7;font-weight:800}
+.overview-table .highlight td{background:#ffff00;font-weight:800}
+.compliance-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+.compliance-card{padding:16px;border-radius:12px;background:linear-gradient(135deg,#f8fbff,#f5f3ff);border:1px solid #e4e7ec}
+.compliance-card h4{margin:0 0 8px;color:#475467;font-size:13px}
+.compliance-card strong{font-size:26px;color:#173f8a}
+.compliance-good{border-left:5px solid #16a34a}
+.compliance-warn{border-left:5px solid #f59e0b}
+.compliance-bad{border-left:5px solid #dc2626}
+@media(max-width:1000px){.compliance-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.compliance-grid,.cab-grid{grid-template-columns:1fr}}
+
+
+
+.report-week-toolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:flex-end;
+  gap:12px;
+  margin:16px 0;
+  padding:12px;
+  border:1px solid #e4e7ec;
+  border-radius:10px;
+  background:#f8fafc;
+}
+#reportWeekSelect{
+  min-width:220px;
+}
+
+.roster-date-head{min-width:92px;line-height:1.25}
+.roster-date-head span{font-size:12px;font-weight:800}
+.roster-date-head small{font-size:11px;font-weight:700}
+.shift-day{background:#fff3cd!important;color:#7a4e00!important;font-weight:800}
+.shift-night{background:#d9e2f3!important;color:#173f8a!important;font-weight:800}
+.shift-late{background:#eadcf8!important;color:#5b21b6!important;font-weight:800}
+.shift-off{background:#f4cccc!important;color:#991b1b!important;font-weight:800}
+.roster-shift-editor{
+  border:0;
+  border-radius:7px;
+  padding:6px 7px;
+  min-width:92px;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+  text-align:center;
+  outline:none;
+  background:transparent;
+  color:inherit;
+}
+.roster-shift-editor:focus{
+  box-shadow:0 0 0 3px #1769ff33;
+}
+.roster-table td:has(.roster-shift-editor){
+  padding:5px;
+}
+
+
+/* ===== FINAL DARK / BOLD THEME ===== */
+body{background:#020409;color:#f8fbff}
+.sidebar{background:linear-gradient(180deg,#030712,#071426 55%,#120827);border-right:1px solid #00e5ff55}
+.main{background:radial-gradient(circle at 80% 0,#9b5cff18,transparent 25%),radial-gradient(circle at 20% 100%,#00e5ff10,transparent 25%)}
+.topbar h1{color:#fff}.user-chip{background:#0b111d;color:#fff;border:1px solid #00e5ff55}
+.card,.form-card,.table-card,.feature-card,.chart-card,.profile-subdivision-panel,.modal-card{background:#080c14;color:#f8fbff;border:1px solid #263247;box-shadow:0 10px 30px #0008}
+.card h3,.field label,.muted,.profile-subdivision-title small,.weekoff-days{color:#b9c7dc}.card strong,.feature-card h3,.profile-subdivision-title{color:#fff}
+.field input,.field select,.auth-card input,.auth-card select{background:#050811;color:#fff;border:1px solid #334155}.field input:focus,.field select:focus{border-color:#00e5ff;box-shadow:0 0 0 3px #00e5ff22}
+.employee-role-tabs,.profile-subdivision-tabs,.overview-toolbar,.report-week-toolbar{background:#050811;border:1px solid #263247}.employee-role-tab,.profile-tab{color:#9fb0c8}.employee-role-tab.active,.profile-tab.active{background:linear-gradient(135deg,#00a6c7,#7c3aed);color:#fff}.profile-tab:hover{background:#172033}
+th{background:#101827;color:#fff;border-color:#263247}td{border-color:#263247;color:#f8fbff}tbody tr:hover{background:#0d1422}
+.weekoff-group,.compliance-card{background:#0b111d;border-color:#263247}.suggestion,.ai-message{background:#0b111d;border-color:#263247;color:#f8fbff}
+.shift-day,.legend-day{background:#3b2805!important;color:#ffd500!important}.shift-night,.legend-night{background:#15144b!important;color:#9da8ff!important}.shift-off,.legend-off{background:#3b0d16!important;color:#ff6b81!important}
+.role-associate{background:#063d4a;color:#5de8ff}.role-tl{background:#25104b;color:#c7a6ff}.role-manager{background:#4a0e35;color:#ff8ed0}.role-pa{background:#0a3f2c;color:#66f2ad}
+.auth-card{background:#080c14;color:#fff;border:1px solid #263247}.auth-card h1{color:#fff}.auth-card p{color:#9fb0c8}
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+</head>
+
+<body>
+
+<!-- =========================================================
+     LOGIN
+========================================================= -->
+
+<div id="authScreen">
+
+  <div class="auth-card">
+
+    <div class="auth-logo">🤖</div>
+
+    <h1>SXVD</h1>
+
+    <p id="authTitle">Login to continue</p>
+
+    <!-- LOGIN -->
+
+    <div id="loginBox">
+
+      <input
+        id="loginUsername"
+        placeholder="Username"
+      >
+
+      <input
+        id="loginPassword"
+        type="password"
+        placeholder="Password"
+      >
+
+      <select id="loginRole">
+        <option>Manager</option>
+        <option>HR</option>
+        <option>TL</option>
+      </select>
+
+      <button
+        class="auth-btn"
+        onclick="login()"
+      >
+        🔐 Login
+      </button>
+
+      <div
+        class="auth-switch"
+        onclick="showRegister()"
+      >
+        Create Account
+      </div>
+
+      <small id="loginMessage"></small>
+
+    </div>
+
+    <!-- REGISTER -->
+
+    <div id="registerBox" class="hidden">
+
+      <input
+        id="regUsername"
+        placeholder="Username"
+      >
+
+      <input
+        id="regPassword"
+        type="password"
+        placeholder="New Password"
+      >
+
+      <input
+        id="regConfirmPassword"
+        type="password"
+        placeholder="Confirm Password"
+      >
+
+      <select id="regRole">
+        <option>Manager</option>
+        <option>HR</option>
+        <option>TL</option>
+      </select>
+
+      <button
+        class="auth-btn"
+        onclick="registerAccount()"
+      >
+        ➕ Create Account
+      </button>
+
+      <div
+        class="auth-switch"
+        onclick="showLogin()"
+      >
+        Back to Login
+      </div>
+
+      <small id="registerMessage"></small>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     APP
+========================================================= -->
+
+<div id="app">
+
+<aside class="sidebar">
+
+  <div class="logo">
+    <span>🤖</span>
+    SXVD ROSTER
+  </div>
+
+  <div
+    class="menu active"
+    onclick="showPage('dashboardPage',this)"
+  >
+    🏠 Dashboard
+  </div>
+
+  <div
+    class="menu"
+    onclick="showPage('employeesPage',this)"
+  >
+    👥 Employees
+  </div>
+
+  <div
+    class="menu"
+    onclick="showPage('rosterPage',this)"
+  >
+    📅 Monthly Roster
+  </div>
+
+  <div class="menu-section">
+    Planning
+  </div>
+
+  <div
+    class="menu"
+    onclick="showPage('shiftSettingsPage',this)"
+  >
+    ⚙️ Shift Settings
+  </div>
+
+  <div
+    class="menu"
+    onclick="showPage('constraintsPage',this)"
+  >
+    ⏱ Constraints
+  </div>
+
+  <div
+    class="menu"
+    onclick="showPage('reportsPage',this)"
+  >
+    📊 Reports
+  </div>
+
+  <div class="menu-section">
+    Employees
+  </div>
+
+  <div
+    class="menu"
+    onclick="showPage('profilePage',this)"
+  >
+    🪪 Employee Profile
+  </div>
+
+  <div
+    class="menu"
+    onclick="showPage('availabilityPage',this)"
+  >
+    🟢 Availability
+  </div>
+
+  <div class="menu-section">
+    Smart Tools
+  </div>
+
+  <div
+    class="menu"
+    onclick="showPage('aiPage',this); setTimeout(runAI,100)"
+  >
+    🤖 AI Roster Assistant
+  </div>
+
+  <div
+    class="menu"
+    onclick="showPage('notificationsPage',this)"
+  >
+    🔔 Notifications
+    <span
+      id="notificationCount"
+      class="badge"
+    >
+      0
+    </span>
+  </div>
+
+  <div class="menu-section">
+    Administration
+  </div>
+
+  <div
+    class="menu"
+    onclick="showPage('usersPage',this)"
+  >
+    👤 Users
+  </div>
+
+  <div
+    class="menu"
+    onclick="logout()"
+  >
+    🚪 Logout
+  </div>
+
+</aside>
+
+
+<main class="main">
+
+
+<!-- =========================================================
+     DASHBOARD
+========================================================= -->
+
+<section
+  id="dashboardPage"
+  class="page active"
+>
+  <div class="topbar">
+    <h1>🏠 Dashboard</h1>
+    <div class="user-chip">👤 <span id="currentUser">Admin</span></div>
+  </div>
+
+  <div class="feature-card">
+    <div class="overview-toolbar">
+      <div>
+        <h2 style="margin:0;color:#173f8a">📊 Weekly Operations Overview</h2>
+        <div class="muted">Automatically recalculated whenever the roster or employee profile changes.</div>
+      </div>
+      <span class="role-badge role-associate">LIVE</span>
+    </div>
+    <div class="table-wrap">
+      <table class="overview-table">
+        <thead id="dashboardOverviewHead"></thead>
+        <tbody id="dashboardOverviewBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="feature-card" style="margin-top:18px">
+    <div class="topbar" style="margin-bottom:10px">
+      <div>
+        <h2 style="margin:0;color:#173f8a">🗓️ Week-Off Planning</h2>
+        <p style="margin:5px 0;color:#667085">Weekly off groups used by the roster generator.</p>
+      </div>
+      <span class="role-badge role-associate">7 GROUPS</span>
+    </div>
+    <div id="weekoffGroupDashboard" class="grid3"></div>
+  </div>
+<div class="feature-card" style="margin-top:18px">
+    <h3>🔔 Latest Notifications</h3>
+    <div id="dashboardNotifications"></div>
+  </div>
+</section>
+
+
+<!-- =========================================================
+     EMPLOYEES
+========================================================= -->
+
+<section
+  id="employeesPage"
+  class="page"
+>
+
+  <div class="topbar">
+
+    <h1>👥 Employees</h1>
+
+    <button
+      class="action-btn"
+      onclick="openEmployeeModal()"
+    >
+      ➕ Add Employee
+    </button>
+
+  </div>
+
+
+  <div
+    class="ai-message"
+    style="margin-bottom:18px"
+  >
+
+    <b>Employee Management:</b>
+
+    Add, edit, filter and delete employees.
+
+    <br><br>
+
+    <b>Employee Profile Divisions:</b>
+
+    <span class="role-badge role-manager">Manager</span>
+    <span class="role-badge role-tl">TL</span>
+    <span class="role-badge role-associate">Associate</span>
+    <span class="role-badge role-pa">DHH</span>
+
+  </div>
+
+
+  <div class="overview-toolbar" style="margin:10px 0 14px">
+    <div class="muted">📅 Live roster date: <b id="liveRosterDate">--</b></div>
+    <div class="muted">🕒 Current time: <b id="liveRosterClock">--</b> · Next automatic weekly update: <b id="nextWeekUpdate">--</b></div>
+  </div>
+
+  <div class="form-card">
+
+    <div class="form-grid">
+
+      <div class="field">
+
+        <label>
+          🔎 Search Employee
+        </label>
+
+        <input
+          id="employeeSearch"
+          oninput="renderEmployees()"
+          placeholder="Search by name or ID"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          🎯 Filter Role
+        </label>
+
+        <select
+          id="employeeRoleFilter"
+          onchange="renderEmployees()"
+        >
+
+          <option value="">
+            All Roles
+          </option>
+
+          <option>
+            Manager
+          </option>
+
+          <option>
+            TL
+          </option>
+
+          <option>
+            Associate
+          </option>
+
+          <option>
+            DHH
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    class="table-card"
+    style="margin-top:18px"
+  >
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>ID</th>
+            <th>Employee Name</th>
+            <th>Group</th>
+            <th>Role</th>
+            <th>Gender</th>
+            
+            <th>LC Curve</th>
+            
+            <th>Actions</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="employeesTable"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     ROSTER
+========================================================= -->
+
+<section
+  id="rosterPage"
+  class="page"
+>
+
+  <div class="topbar">
+
+    <h1>📅 Monthly Roster</h1>
+
+    <div>
+
+      <button
+        class="action-btn"
+        type="button"
+        id="generateRosterBtn"
+      >
+        🤖 Generate Roster
+      </button>
+
+      <button
+        class="action-btn success"
+        type="button"
+        id="exportCsvBtn"
+      >
+        📥 Export CSV
+      </button>
+
+      <button
+        class="action-btn"
+        type="button"
+        id="exportExcelBtn"
+        style="background:linear-gradient(135deg,#16803c,#22a447)"
+      >
+        📊 Export Excel
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="form-card">
+
+    <div class="form-grid">
+
+      <div class="field">
+
+        <label>
+          Month
+        </label>
+
+        <input
+          type="month"
+          id="rosterMonth"
+          onchange="if(rosterData.length)regenerateRoster(false); else renderRoster();"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Roster Rule
+        </label>
+
+        <select id="rosterRule" onchange="if(rosterData.length)regenerateRoster(false)">
+
+          <option value="balanced">
+            Balanced DAY / NIGHT / OFF
+          </option>
+
+          <option value="simple">
+            Simple Rotation
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          View Roster By Role
+        </label>
+
+        <select
+          id="rosterRoleFilter"
+          onchange="renderRoster()"
+        >
+
+          <option value="ALL">
+            All Employees
+          </option>
+
+          <option value="Manager">
+            Managers Only
+          </option>
+
+          <option value="TL">
+            TL Only
+          </option>
+
+          <option value="Associate">
+            Associates Only
+          </option>
+
+          <option value="MALE_ASSOCIATE">
+            Male Associates Only
+          </option>
+
+          <option value="FEMALE_ASSOCIATE">
+            Female Associates Only
+          </option>
+
+          <option value="PA">
+            PAs Only
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div class="shift-legend">
+
+      <span class="legend-item legend-day">
+        09:45-19:45
+      </span>
+
+      <span class="legend-item legend-night">
+        20:00 - 06:00
+      </span>
+
+      <span class="legend-item legend-off">
+        🔴 OFF
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div
+    class="ai-message"
+    style="margin-top:18px"
+  >
+
+    <b>Roster Filter:</b>
+
+    Select a role to view a separate roster.
+
+  </div>
+
+
+  <div
+    class="table-card"
+    style="margin-top:18px"
+  >
+
+    <div class="table-wrap">
+
+      <table class="roster-table">
+
+        <thead id="rosterHead"></thead>
+
+        <tbody id="rosterBody"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     SHIFT SETTINGS
+========================================================= -->
+
+<section
+  id="shiftSettingsPage"
+  class="page"
+>
+
+  <div class="topbar">
+    <h1>⚙️ Shift Settings</h1>
+  </div>
+
+  <div class="form-card">
+
+    <div class="form-grid">
+
+      <div class="field">
+        <label>09:45-19:45 Start</label>
+        <input
+          type="time"
+          id="dayStart"
+          value="08:00"
+        >
+      </div>
+
+      <div class="field">
+        <label>09:45-19:45 End</label>
+        <input
+          type="time"
+          id="dayEnd"
+          value="20:00"
+        >
+      </div>
+
+      <div class="field">
+        <label>20:00 - 06:00 Start</label>
+        <input
+          type="time"
+          id="nightStart"
+          value="20:00"
+        >
+      </div>
+
+      <div class="field">
+        <label>20:00 - 06:00 End</label>
+        <input
+          type="time"
+          id="nightEnd"
+          value="08:00"
+        >
+      </div>
+
+      <div class="field">
+        <label>DAY Required</label>
+        <input
+          type="number"
+          id="dayRequired"
+          value="10"
+          min="0"
+        >
+      </div>
+
+      <div class="field">
+        <label>NIGHT Required</label>
+        <input
+          type="number"
+          id="nightRequired"
+          value="8"
+          min="0"
+        >
+      </div>
+      </div>
+      <div class="form-actions">
+
+      <button
+        class="action-btn success"
+        onclick="saveShiftSettings()"
+      >
+        💾 Save Settings
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     CONSTRAINTS
+========================================================= -->
+
+<section
+  id="constraintsPage"
+  class="page"
+>
+
+  <div class="topbar">
+    <h1>⏱ Constraints</h1>
+  </div>
+
+  <div class="form-card">
+
+    <div class="form-grid">
+
+      <div class="field">
+
+        <label>
+          Maximum Consecutive Work Days
+        </label>
+
+        <input
+          type="number"
+          id="maxWorkDays"
+          value="6"
+          min="1"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Minimum Weekly OFF Days
+        </label>
+
+        <input
+          type="number"
+          id="minOffDays"
+          value="1"
+          min="0"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Allow NIGHT → DAY Next Day
+        </label>
+
+        <select id="nightDayRule">
+
+          <option value="no">
+            No
+          </option>
+
+          <option value="yes">
+            Yes
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Use Availability in Roster
+        </label>
+
+        <select id="useAvailability">
+
+          <option value="yes">
+            Yes
+          </option>
+
+          <option value="no">
+            No
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div class="form-actions">
+
+      <button
+        class="action-btn success"
+        onclick="saveConstraints()"
+      >
+        💾 Save Constraints
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     REPORTS
+========================================================= -->
+
+<section
+  id="reportsPage"
+  class="page"
+>
+  <div class="topbar">
+    <h1>📊 Reports</h1>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button type="button" id="refreshReportsBtn" class="action-btn">🔄 Refresh</button>
+    </div>
+  </div>
+
+  <div class="feature-card">
+    <div class="overview-toolbar">
+      <div>
+        <h2 style="margin:0;color:#173f8a">📈 Monthly Operations Overview</h2>
+        <div class="muted">The table below automatically shows the complete selected roster month and updates whenever the roster is changed.</div>
+      </div>
+      <span id="reportLastUpdated" class="muted">Not generated</span>
+    </div>
+
+    <div class="report-week-toolbar">
+      <div class="field" style="min-width:230px;margin:0">
+        <label>Download Week</label>
+        <select id="reportWeekSelect" aria-label="Select week for report download"></select>
+      </div>
+      <button type="button" id="weeklyReportExcelBtn" class="action-btn" style="background:linear-gradient(135deg,#16803c,#22a447);align-self:end">
+        📊 Download Selected Week
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      <table class="overview-table">
+        <thead id="reportOverviewHead"></thead>
+        <tbody id="reportOverviewBody"></tbody>
+      </table>
+    </div>
+  </div>
+    
+
+</section>
+
+
+<!-- =========================================================
+     PROFILE
+========================================================= -->
+<section id="profilePage" class="page">
+  <div class="topbar">
+    <h1>🪪 Employee Profile</h1>
+  </div>
+
+  <div class="form-card">
+    <div class="profile-head">
+      <div class="avatar" id="profileAvatar">A</div>
+      <div>
+        <h2 id="profileName">Select Employee</h2>
+        <div id="profileMeta"></div>
+      </div>
+    </div>
+
+    <div class="profile-subdivision-tabs">
+      <button type="button" class="profile-tab active" id="profileTabAssociate"
+              onclick="selectProfileSubdivision('Associate')">ASSOCIATE</button>
+      <button type="button" class="profile-tab" id="profileTabTL"
+              onclick="selectProfileSubdivision('TL')">TL</button>
+      <button type="button" class="profile-tab" id="profileTabManager"
+              onclick="selectProfileSubdivision('Manager')">MANAGER</button>
+      <button type="button" class="profile-tab" id="profileTabDHH"
+              onclick="selectProfileSubdivision('DHH')">DHH</button>
+    </div>
+
+    <div class="form-grid" style="margin-top:18px">
+      <div class="field">
+        <label>Employee</label>
+        <select id="profileEmployee" onchange="loadProfile()"></select>
+      </div>
+      <div class="field">
+        <label>Name</label>
+        <input id="profileFullName" placeholder="Enter employee name">
+      </div>
+    </div>
+
+    <div id="associateProfileFields" class="profile-subdivision-panel">
+      <div class="profile-subdivision-title">
+        <span>👤 Associate Details</span>
+        <small>Associate roster allocation details</small>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>LC Curve</label>
+          <select id="profileLcCurve">
+            <option value="FT1">FT1</option>
+            <option value="FT2">FT2</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Group (Week Off)</label>
+          <select id="profileGroup">
+            <option value="A">A — Sun & Mon</option>
+            <option value="B">B — Mon & Tue</option>
+            <option value="C">C — Tue & Wed</option>
+            <option value="D">D — Wed & Thu</option>
+            <option value="E">E — Thu & Fri</option>
+            <option value="F">F — Fri & Sat</option>
+            <option value="G">G — Sat & Sun</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input id="profilePhone" type="tel" placeholder="Enter phone number">
+        </div>
+      </div>
+    </div>
+
+    <div id="leadershipProfileFields" class="profile-subdivision-panel hidden">
+      <div class="profile-subdivision-title"><span>👔 Leadership Details</span><small>Leadership profile</small></div>
+      <div class="form-grid"><div class="field"><label>Phone</label><input id="profileLeadershipPhone" type="tel" placeholder="Enter phone number"></div></div>
+    </div>
+
+    <div id="dhhProfileFields" class="profile-subdivision-panel hidden">
+      <div class="profile-subdivision-title"><span>🛡️ DHH Details</span><small>DHH roster profile</small></div>
+      <div class="form-grid">
+        <div class="field"><label>Group (Week Off)</label><select id="profileDhhGroup">
+          <option value="A">A — Sun & Mon</option><option value="B">B — Mon & Tue</option><option value="C">C — Tue & Wed</option>
+          <option value="D">D — Wed & Thu</option><option value="E">E — Thu & Fri</option><option value="F">F — Fri & Sat</option><option value="G">G — Sat & Sun</option>
+        </select></div>
+        <div class="field"><label>Phone</label><input id="profileDhhPhone" type="tel" placeholder="Enter phone number"></div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="action-btn success" onclick="saveProfile()">💾 Save Profile</button>
+    </div>
+    <p id="profileMessage"></p>
+  </div>
+</section>
+
+<!-- =========================================================
+     AVAILABILITY
+========================================================= -->
+
+<section
+  id="availabilityPage"
+  class="page"
+>
+
+  <div class="topbar">
+    <h1>🟢 Employee Availability</h1>
+  </div>
+
+
+  <div class="form-card">
+
+    <div class="form-grid">
+
+      <div class="field">
+
+        <label>
+          Employee
+        </label>
+
+        <select id="availabilityEmployee"></select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Date
+        </label>
+
+        <input
+          type="date"
+          id="availabilityDate"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Status
+        </label>
+
+        <select id="availabilityStatus">
+
+          <option>
+            Available
+          </option>
+
+          <option>
+            Unavailable
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Shift Availability Pattern
+        </label>
+
+        <select id="availabilityPattern" onchange="toggleCustomAvailability()">
+          <option value="1W_DAY_1W_NIGHT">1 Week DAY + 1 Week NIGHT</option>
+          <option value="2W_DAY">2 Weeks 09:45-19:45 Shift</option>
+          <option value="2W_NIGHT">2 Weeks 20:00 - 06:00 Shift</option>
+          <option value="3W_DAY">3 Weeks 09:45-19:45 Shift</option>
+          <option value="3W_NIGHT">3 Weeks 20:00 - 06:00 Shift</option>
+          <option value="CUSTOM">Customized</option>
+        </select>
+
+      </div>
+
+      <div class="field hidden" id="customAvailabilityField">
+        <label>Customized Shift Pattern</label>
+        <input id="availabilityCustomPattern" placeholder="Example: 2 weeks DAY, 1 week NIGHT, 1 week OFF">
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Reason
+        </label>
+
+        <input
+          id="availabilityReason"
+          placeholder="Optional"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="form-actions">
+
+      <button
+        class="action-btn success"
+        onclick="saveAvailability()"
+      >
+        💾 Save Availability
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div
+    class="table-card"
+    style="margin-top:18px"
+  >
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Employee</th>
+            <th>Date</th>
+            
+            <th>Shift Pattern</th>
+            <th>Reason</th>
+            <th>Action</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="availabilityTable"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     AI
+========================================================= -->
+
+<section
+  id="aiPage"
+  class="page"
+>
+
+  <div class="topbar">
+
+    <h1>🤖 AI Roster Assistant</h1>
+
+    <button
+      class="action-btn"
+      onclick="runAI()"
+    >
+      ✨ Analyze Roster
+    </button>
+
+  </div>
+
+
+  <div class="grid2">
+
+    <div class="feature-card">
+
+      <h3>
+        Smart Analysis
+      </h3>
+
+      <div
+        id="aiOutput"
+        class="ai-message"
+      >
+        Generate a roster first.
+      </div>
+
+      <div class="form-actions">
+
+        <button
+          class="action-btn"
+          onclick="runAI()"
+        >
+          ✨ Generate Suggestions
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="feature-card">
+
+      <h3>
+        AI Checks
+      </h3>
+
+      <div class="suggestion">
+        ✅ DAY / NIGHT balance
+      </div>
+
+      <div class="suggestion">
+        ✅ Employee availability
+      </div>
+
+      <div class="suggestion">
+        ✅ Weekly OFF coverage
+      </div>
+
+      <div class="suggestion">
+        ✅ Consecutive work days
+      </div>
+
+      <div class="suggestion">
+        ✅ Understaffing warnings
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     NOTIFICATIONS
+========================================================= -->
+
+<section
+  id="notificationsPage"
+  class="page"
+>
+
+  <div class="topbar">
+
+    <h1>🔔 Notifications</h1>
+
+    <button
+      class="action-btn"
+      onclick="markAllRead()"
+    >
+      ✓ Mark All Read
+    </button>
+
+  </div>
+
+
+  <div class="table-card">
+
+    <div id="notificationList"></div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     USERS
+========================================================= -->
+
+<section
+  id="usersPage"
+  class="page"
+>
+
+  <div class="topbar">
+
+    <h1>👤 Users</h1>
+
+  </div>
+
+
+  <div class="table-card">
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Action</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="usersTable"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+</main>
+</div>
+
+
+<!-- =========================================================
+     EMPLOYEE MODAL
+========================================================= -->
+<div class="modal" id="employeeModal">
+  <div class="modal-card">
+    <h2 id="employeeModalTitle">Add Employee</h2>
+    <input type="hidden" id="editEmployeeId">
+
+    <div class="employee-role-tabs">
+      <button type="button" class="employee-role-tab active" id="employeeRoleAssociate"
+              onclick="selectEmployeeRole('Associate')">ASSOCIATE</button>
+      <button type="button" class="employee-role-tab" id="employeeRoleTL"
+              onclick="selectEmployeeRole('TL')">TL</button>
+      <button type="button" class="employee-role-tab" id="employeeRoleManager"
+              onclick="selectEmployeeRole('Manager')">MANAGER</button>
+      <button type="button" class="employee-role-tab" id="employeeRoleDHH"
+              onclick="selectEmployeeRole('DHH')">DHH</button>
+    </div>
+    <input type="hidden" id="employeeRole" value="Associate">
+
+    <div class="field" style="margin-top:16px">
+      <label>Name</label>
+      <input id="employeeName" placeholder="Enter employee name">
+    </div>
+
+    <div id="employeeAssociateFields">
+      <div class="field" style="margin-top:12px">
+        <label>LC Curve</label>
+        <select id="employeeLcCurve">
+          <option value="FT1">FT1</option>
+          <option value="FT2">FT2</option>
+        </select>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label>Group (Week Off)</label>
+        <select id="employeeGroup">
+          <option value="A">A — Sun & Mon</option>
+          <option value="B">B — Mon & Tue</option>
+          <option value="C">C — Tue & Wed</option>
+          <option value="D">D — Wed & Thu</option>
+          <option value="E">E — Thu & Fri</option>
+          <option value="F">F — Fri & Sat</option>
+          <option value="G">G — Sat & Sun</option>
+        </select>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label>Phone</label>
+        <input id="employeePhone" type="tel" placeholder="Enter phone number">
+      </div>
+    </div>
+
+    <div id="employeeLeadershipFields" class="hidden">
+      <div class="field" style="margin-top:12px">
+        <label>Phone</label>
+        <input id="employeeLeadershipPhone" type="tel" placeholder="Enter phone number">
+      </div>
+    </div>
+
+    <div id="employeeDhhFields" class="hidden">
+      <div class="field" style="margin-top:12px">
+        <label>Group (Week Off)</label>
+        <select id="employeeDhhGroup">
+          <option value="A">A — Sun & Mon</option><option value="B">B — Mon & Tue</option>
+          <option value="C">C — Tue & Wed</option><option value="D">D — Wed & Thu</option>
+          <option value="E">E — Thu & Fri</option><option value="F">F — Fri & Sat</option><option value="G">G — Sat & Sun</option>
+        </select>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label>Phone</label>
+        <input id="employeeDhhPhone" type="tel" placeholder="Enter phone number">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="action-btn success" onclick="saveEmployee()">💾 Save</button>
+      <button class="action-btn secondary" onclick="closeEmployeeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   SXVD AI AUTOMATIC ROSTER MANAGEMENT SYSTEM
+   Updated: live roster/report sync, FT1/FT2 LC Curve,
+   DHH support, safe shift rotation, weekly/monthly overview and compliance.
+========================================================== */
+
+const DEFAULT_EMPLOYEES = [
+  {id:1,name:"Dhanusri",group:"A",role:"Associate",gender:"Female",joiningDate:"",lcCurve:"FT1",cab:"Cab 1",status:"Active"},
+  {id:2,name:"Ravi Kumar",group:"B",role:"Associate",gender:"Male",joiningDate:"",lcCurve:"FT2",cab:"Cab 2",status:"Active"},
+  {id:3,name:"Priya",group:"C",role:"TL",gender:"Female",joiningDate:"",lcCurve:"FT1",cab:"Cab 3",status:"Active"},
+  {id:4,name:"Arun",group:"D",role:"DHH",gender:"Male",joiningDate:"",lcCurve:"FT2",cab:"Cab 1",status:"Active"},
+  {id:5,name:"Sowmya",group:"E",role:"Associate",gender:"Female",joiningDate:"",lcCurve:"FT1",cab:"Cab 2",status:"Active"},
+  {id:6,name:"Karthik",group:"F",role:"Manager",gender:"Male",joiningDate:"",lcCurve:"FT2",cab:"Cab 3",status:"Active"}
+];
+
+const WEEK_OFF_GROUPS = {
+  A:"Sun-Mon", B:"Mon-Tue", C:"Tue-Wed", D:"Wed-Thu",
+  E:"Thu-Fri", F:"Fri-Sat", G:"Sat-Sun"
+};
+
+let employees = JSON.parse(localStorage.getItem("rosterEmployees") || "null") || DEFAULT_EMPLOYEES;
+let rosterData = JSON.parse(localStorage.getItem("rosterData") || "[]");
+let profiles = JSON.parse(localStorage.getItem("rosterProfiles") || "{}");
+let availability = JSON.parse(localStorage.getItem("rosterAvailability") || "[]");
+let notifications = JSON.parse(localStorage.getItem("rosterNotifications") || "[]");
+let users = JSON.parse(localStorage.getItem("rosterUsers") || "null") || [
+  {username:"admin",password:"admin123",role:"Manager"}
+];
+let currentUser = null;
+
+let settings = JSON.parse(localStorage.getItem("rosterSettings") || "null") || {
+  dayStart:"09:45", dayEnd:"18:00",
+  nightStart:"20:00", nightEnd:"05:00",
+  lateStart:"", lateEnd:"06:00",
+  dayRequired:10, nightRequired:8, lateRequired:4
+};
+
+let constraints = JSON.parse(localStorage.getItem("rosterConstraints") || "null") || {
+  maxWorkDays:6, minOffDays:1, nightDayRule:"no", useAvailability:"yes"
+};
+
+/* Migrate older saved data without deleting it. */
+employees.forEach((e,i)=>{
+  if(e.role==="PA Associate" || e.role==="PA") e.role="DHH";
+  if(!e.gender) e.gender="Not Set";
+  if(!e.status) e.status="Active";
+  if(!e.joiningDate) e.joiningDate="";
+  if(!e.lcCurve) e.lcCurve=(i%2===0 ? "FT1" : "FT2");
+  e.cab="";
+});
+settings.dayStart="09:45";
+settings.dayEnd="19:45";
+settings.nightStart="20:00";
+settings.nightEnd="06:00";
+delete settings.lateStart;
+delete settings.lateEnd;
+delete settings.lateRequired;
+
+function saveAll(){
+  try{
+    localStorage.setItem("rosterEmployees",JSON.stringify(employees));
+    localStorage.setItem("rosterData",JSON.stringify(rosterData));
+    localStorage.setItem("rosterProfiles",JSON.stringify(profiles));
+    localStorage.setItem("rosterAvailability",JSON.stringify(availability));
+    localStorage.setItem("rosterNotifications",JSON.stringify(notifications));
+    localStorage.setItem("rosterUsers",JSON.stringify(users));
+    localStorage.setItem("rosterSettings",JSON.stringify(settings));
+    localStorage.setItem("rosterConstraints",JSON.stringify(constraints));
+  }catch(err){
+    console.warn("Local storage unavailable; continuing with in-memory data.",err);
+  }
+}
+
+/* ---------- LIVE OVERVIEW SYNC ---------- */
+let overviewRefreshTimer = null;
+let overviewSyncBusy = false;
+
+function refreshOverviewOnly(){
+  renderOverview("dashboardOverviewHead","dashboardOverviewBody");
+  renderOverview("reportOverviewHead","reportOverviewBody");
+  renderWeekOffGroups();
+}
+
+function refreshLiveDataViews({rebuildRoster=false,notify=false}={}){
+  if(overviewSyncBusy)return;
+  overviewSyncBusy=true;
+  try{
+    syncProfilesToEmployees();
+    if(rebuildRoster && rosterData.length){
+      generateRosterSilent();
+    }else{
+      refreshOverviewOnly();
+      renderEmployees();
+      renderAvailability();
+      renderRoster();
+      updateDashboard();
+      updateReports();
+    }
+    populateEmployeeSelectors();
+    if(notify) saveAll();
+  }finally{
+    overviewSyncBusy=false;
+  }
+  try{renderMonthlyOverview();}catch(e){}
+}
+
+function queueLiveOverviewRefresh(rebuildRoster=false){
+  clearTimeout(overviewRefreshTimer);
+  overviewRefreshTimer=setTimeout(()=>{
+    refreshLiveDataViews({rebuildRoster});
+  },50);
+}
+
+function installLiveOverviewSync(){
+  const ids=[
+    "employeeName","employeeGroup","employeeRole","employeeGender",
+    "profileEmployee","profileFullName","profileRole","profileGroup",
+    "profileLcCurve","profileCab","profileStatus","profileJoiningDate",
+    "availabilityEmployee","availabilityDate","availabilityStatus",
+    "availabilityPattern","availabilityCustomPattern",
+    "dayStart","dayEnd","nightStart","nightEnd",
+    "dayRequired","nightRequired",
+    "maxWorkDays","minOffDays","nightDayRule","useAvailability",
+    "rosterMonth","rosterRule"
+  ];
+  ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.addEventListener("input",()=>queueLiveOverviewRefresh(false));
+    el.addEventListener("change",()=>queueLiveOverviewRefresh(true));
+  });
+}
+
+/* Keep the overview synchronized with saved localStorage data too.
+   This also covers changes made by another tab/window. */
+window.addEventListener("storage",event=>{
+  if(!event.key || event.key.startsWith("roster")){
+    employees=JSON.parse(localStorage.getItem("rosterEmployees")||"[]");
+    rosterData=JSON.parse(localStorage.getItem("rosterData")||"[]");
+    profiles=JSON.parse(localStorage.getItem("rosterProfiles")||"{}");
+    availability=JSON.parse(localStorage.getItem("rosterAvailability")||"[]");
+    settings=JSON.parse(localStorage.getItem("rosterSettings")||"null")||settings;
+    constraints=JSON.parse(localStorage.getItem("rosterConstraints")||"null")||constraints;
+    refreshAllViews();
+  }
+});
+
+function esc(v){
+  return String(v ?? "").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+}
+
+function addNotification(title,message){
+  notifications.push({title,message,time:new Date().toLocaleString()});
+  if(notifications.length>100) notifications=notifications.slice(-100);
+  saveAll();
+  renderNotifications();
+}
+
+function showRegister(){
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("registerBox").classList.remove("hidden");
+  document.getElementById("authTitle").innerText="Create your account";
+}
+function showLogin(){
+  document.getElementById("registerBox").classList.add("hidden");
+  document.getElementById("loginBox").classList.remove("hidden");
+  document.getElementById("authTitle").innerText="Login to continue";
+}
+function registerAccount(){
+  const username=document.getElementById("regUsername").value.trim();
+  const password=document.getElementById("regPassword").value;
+  const confirm=document.getElementById("regConfirmPassword").value;
+  const role=document.getElementById("regRole").value;
+  const msg=document.getElementById("registerMessage");
+  if(!username||!password||!confirm){msg.style.color="#dc2626";msg.innerText="Please fill in all fields.";return;}
+  if(password.length<6){msg.style.color="#dc2626";msg.innerText="Password must be at least 6 characters.";return;}
+  if(password!==confirm){msg.style.color="#dc2626";msg.innerText="Passwords do not match.";return;}
+  if(users.some(u=>u.username.toLowerCase()===username.toLowerCase())){msg.style.color="#dc2626";msg.innerText="Username already exists.";return;}
+  users.push({username,password,role});
+  saveAll();
+  msg.style.color="#16a34a";msg.innerText="Account created successfully.";
+  setTimeout(showLogin,800);
+}
+function login(){
+  const username=document.getElementById("loginUsername").value.trim();
+  const password=document.getElementById("loginPassword").value;
+  const role=document.getElementById("loginRole").value;
+  const account=users.find(u=>u.username===username&&u.password===password&&u.role===role);
+  const msg=document.getElementById("loginMessage");
+  if(!account){msg.style.color="#dc2626";msg.innerText="Invalid username, password, or role.";return;}
+  currentUser=account;
+  document.getElementById("currentUser").innerText=account.username+" ("+account.role+")";
+  document.getElementById("authScreen").style.display="none";
+  document.getElementById("app").style.display="block";
+  populateEmployeeSelectors();
+  refreshAllViews();
+  addNotification("Login Successful","Welcome "+account.username+".");
+}
+function logout(){
+  currentUser=null;
+  document.getElementById("app").style.display="none";
+  document.getElementById("authScreen").style.display="flex";
+  showLogin();
+}
+
+function showPage(id,el){
+  const sb=document.querySelector(".sidebar");
+  const sbTop=sb ? sb.scrollTop : 0;
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id)?.classList.add("active");
+  document.querySelectorAll(".menu").forEach(m=>m.classList.remove("active"));
+  el?.classList.add("active");
+
+  /* Keep the fixed sidebar at its original top position when switching pages. */
+  const sidebar=document.querySelector(".sidebar");
+  if(sidebar) sidebar.scrollTop=0;
+
+  if(id==="profilePage"){
+    window.scrollTo(0,0);
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+  }
+
+
+
+
+  if(id==="dashboardPage") updateDashboard();
+  if(id==="employeesPage") renderEmployees();
+  if(id==="profilePage"){populateEmployeeSelectors();loadProfile();}
+  if(id==="availabilityPage"){populateEmployeeSelectors();renderAvailability();}
+  if(id==="rosterPage") renderRoster();
+  if(id==="reportsPage") updateReports();
+  if(id==="notificationsPage") renderNotifications();
+  if(id==="usersPage") renderUsers();
+
+
+
+
+  if(sb){
+    sb.scrollTop=sbTop;
+    requestAnimationFrame(()=>{ sb.scrollTop=sbTop; });
+  }
+}
+
+function nextEmployeeId(){
+  return employees.length ? Math.max(...employees.map(e=>Number(e.id)))+1 : 1;
+}
+
+function selectEmployeeRole(role){
+  role = ["Associate","TL","Manager","DHH"].includes(role) ? role : "Associate";
+  const roleInput=document.getElementById("employeeRole"); if(roleInput)roleInput.value=role;
+  ["Associate","TL","Manager","DHH"].forEach(r=>document.getElementById("employeeRole"+r)?.classList.toggle("active",r===role));
+  document.getElementById("employeeAssociateFields")?.classList.toggle("hidden",role!=="Associate");
+  document.getElementById("employeeLeadershipFields")?.classList.toggle("hidden",!(role==="TL"||role==="Manager"));
+  document.getElementById("employeeDhhFields")?.classList.toggle("hidden",role!=="DHH");
+}
+
+function openEmployeeModal(id=null){
+  const modal=document.getElementById("employeeModal");
+  modal.classList.add("show");
+  document.getElementById("editEmployeeId").value=id||"";
+  document.getElementById("employeeModalTitle").innerText=id?"Edit Employee":"Add Employee";
+
+  if(id){
+    const e=employees.find(x=>Number(x.id)===Number(id));
+    if(!e){closeEmployeeModal();return;}
+
+    document.getElementById("employeeName").value=e.name||"";
+    document.getElementById("employeeRole").value=e.role||"Associate";
+    document.getElementById("employeeGroup").value=e.group||"A";
+    document.getElementById("employeeLcCurve").value=e.lcCurve||"FT1";
+    document.getElementById("employeePhone").value=e.phone||"";
+    document.getElementById("employeeLeadershipPhone").value=e.phone||"";
+    document.getElementById("employeeDhhPhone").value=e.phone||"";
+    document.getElementById("employeeDhhGroup").value=e.group||"A";
+
+    selectEmployeeRole(e.role);
+  }else{
+    document.getElementById("employeeName").value="";
+    document.getElementById("employeeGroup").value="A";
+    document.getElementById("employeeLcCurve").value=employees.length%2===0?"FT1":"FT2";
+    document.getElementById("employeePhone").value="";
+    document.getElementById("employeeLeadershipPhone").value="";
+    document.getElementById("employeeDhhPhone").value="";
+    document.getElementById("employeeDhhGroup").value="A";
+    selectEmployeeRole("Associate");
+  }
+}
+
+function closeEmployeeModal(){
+  document.getElementById("employeeModal").classList.remove("show");
+}
+
+function saveEmployee(){
+  const id=document.getElementById("editEmployeeId").value;
+  const name=document.getElementById("employeeName").value.trim();
+  const role=document.getElementById("employeeRole").value||"Associate";
+  if(!name){alert("Please enter employee name.");return;}
+  const isAssociate=role==="Associate", isDhh=role==="DHH";
+  const group=isAssociate?document.getElementById("employeeGroup").value:(isDhh?document.getElementById("employeeDhhGroup").value:"");
+  const lcCurve=isAssociate?document.getElementById("employeeLcCurve").value:"";
+  const phone=(isAssociate?document.getElementById("employeePhone").value:(isDhh?document.getElementById("employeeDhhPhone").value:document.getElementById("employeeLeadershipPhone").value)).trim();
+  if(id){
+    const e=employees.find(x=>Number(x.id)===Number(id));
+    if(e){Object.assign(e,{name,role,phone,group,lcCurve,cab:"",joiningDate:"",email:"",status:"Active"});}
+    addNotification("Employee Updated",name+" was updated.");
+  }else{
+    employees.push({id:nextEmployeeId(),name,role,phone,group,lcCurve,gender:"Not Set",status:"Active",joiningDate:"",email:"",cab:""});
+    addNotification("Employee Added",name+" was added successfully.");
+  }
+  syncProfilesToEmployees(); saveAll(); closeEmployeeModal();
+  if(rosterData.length)regenerateRoster(false); else refreshLiveDataViews();
+  refreshAllViews();
+}
+
+function deleteEmployee(employeeId){
+  const id=String(employeeId);
+  const employee=employees.find(e=>String(e.id)===id);
+  if(!employee){alert("Employee not found.");return false;}
+  if(!confirm("Are you sure you want to delete "+employee.name+"?")) return false;
+  employees=employees.filter(e=>String(e.id)!==id);
+  rosterData=rosterData.filter(r=>String(r.employeeId)!==id);
+  availability=availability.filter(a=>String(a.employeeId)!==id);
+  delete profiles[id];
+  saveAll();
+  refreshAllViews();
+  addNotification("Employee Deleted",employee.name+" was deleted.");
+  return false;
+}
+
+function roleBadge(role){
+  const cls=role==="Manager"?"role-manager":role==="TL"?"role-tl":role==="DHH"?"role-pa":"role-associate";
+  return `<span class="role-badge ${cls}">${esc(role)}</span>`;
+}
+function statusBadge(status){
+  const cls=status==="On Leave"?"status-leave":status==="Inactive"?"status-inactive":"status-active";
+  return `<span class="status-badge ${cls}">${esc(status)}</span>`;
+}
+
+function renderEmployees(){
+  const tbody=document.getElementById("employeesTable"); if(!tbody)return;
+  const search=(document.getElementById("employeeSearch")?.value||"").toLowerCase();
+  const role=document.getElementById("employeeRoleFilter")?.value||"";
+  const list=employees.filter(e=>
+    (!search||String(e.id).toLowerCase().includes(search)||String(e.name).toLowerCase().includes(search)) &&
+    (!role||e.role===role)
+  );
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="9" class="empty">👥 No employees found.</td></tr>`;return;}
+  tbody.innerHTML=list.map(e=>`
+    <tr>
+      <td><b>#${e.id}</b></td>
+      <td><b>${esc(e.name)}</b></td>
+      <td><span class="role-badge role-associate">Group ${esc(e.group)}</span></td>
+      <td>${roleBadge(e.role)}</td>
+      <td>${esc(e.gender||"Not Set")}</td>
+      <td>${e.role==="Associate"?`<span class="lc-${e.lcCurve==="FT2"?"ft2":"ft1"} role-badge">${esc(e.lcCurve||"FT1")}</span>`:"—"}</td>
+      <td>
+        <button type="button" class="small-btn" onclick="openEmployeeModal(${e.id})">✏ Edit</button>
+        <button type="button" class="small-btn danger" data-delete-employee="${e.id}">🗑 Delete</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function populateEmployeeSelectors(){
+  const opts=employees.map(e=>`<option value="${e.id}">${esc(e.name)} — ${esc(e.role)}</option>`).join("");
+  ["availabilityEmployee","profileEmployee"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const old=el.value;
+    el.innerHTML=opts;
+    if(old && employees.some(e=>String(e.id)===String(old))) el.value=old;
+  });
+}
+
+function syncProfilesToEmployees(){
+  employees.forEach(e=>{
+    const p=profiles[e.id]; if(!p)return;
+    e.name=p.name||e.name; e.role=p.role||e.role||"Associate"; e.phone=p.phone||e.phone||"";
+    if(e.role==="Associate"){e.group=p.group||e.group||"A";e.lcCurve=p.lcCurve||e.lcCurve||"FT1";}
+    else if(e.role==="DHH"){e.group=p.group||e.group||"A";e.lcCurve="";}
+    else{e.group="";e.lcCurve="";}
+    e.cab="";e.joiningDate="";e.email="";e.status="Active";
+  });
+}
+
+function selectProfileSubdivision(role){
+  role=["Associate","TL","Manager","DHH"].includes(role)?role:"Associate";
+  ["Associate","TL","Manager","DHH"].forEach(r=>document.getElementById("profileTab"+r)?.classList.toggle("active",r===role));
+  document.getElementById("associateProfileFields")?.classList.toggle("hidden",role!=="Associate");
+  document.getElementById("leadershipProfileFields")?.classList.toggle("hidden",!(role==="TL"||role==="Manager"));
+  document.getElementById("dhhProfileFields")?.classList.toggle("hidden",role!=="DHH");
+}
+
+function loadProfile(){
+  const select=document.getElementById("profileEmployee");
+  if(!select||!employees.length)return;
+
+  const id=Number(select.value||employees[0].id);
+  select.value=String(id);
+
+  const e=employees.find(x=>Number(x.id)===id);
+  if(!e)return;
+
+  const p=profiles[id]||{};
+  const role=p.role||e.role||"Associate";
+
+  const set=(id,v)=>{
+    const el=document.getElementById(id);
+    if(el)el.value=v??"";
+  };
+
+  set("profileFullName",p.name||e.name||"");
+  set("profileLcCurve",p.lcCurve||e.lcCurve||"FT1");
+  set("profileGroup",p.group||e.group||"A");
+  set("profilePhone",p.phone||e.phone||"");
+  set("profileLeadershipPhone",p.phone||e.phone||"");
+  set("profileDhhPhone",p.phone||e.phone||"");
+  set("profileDhhGroup",p.group||e.group||"A");
+
+  selectProfileSubdivision(role);
+
+  document.getElementById("profileName").innerText=p.name||e.name||"Select Employee";
+  document.getElementById("profileMeta").innerText=
+    role==="Associate"
+      ? `Associate • Group ${p.group||e.group||"A"} • ${p.lcCurve||e.lcCurve||"FT1"}`
+      : role==="DHH"
+        ? `DHH • Group ${p.group||e.group||"A"}`
+        : role;
+
+  document.getElementById("profileAvatar").innerText=
+    (p.name||e.name||"?").charAt(0).toUpperCase();
+}
+
+function saveProfile(){
+  const id=Number(document.getElementById("profileEmployee").value);
+  const e=employees.find(x=>Number(x.id)===id);
+  if(!e)return;
+
+  const active=document.querySelector(".profile-tab.active");
+  const role=active?.id==="profileTabTL"
+    ?"TL"
+    :active?.id==="profileTabManager"
+      ?"Manager"
+      :"Associate";
+
+  const name=document.getElementById("profileFullName").value.trim();
+  if(!name){
+    alert("Please enter employee name.");
+    return;
+  }
+
+  const phone=role==="Associate"
+    ?document.getElementById("profilePhone").value.trim()
+    :document.getElementById("profileLeadershipPhone").value.trim();
+
+  const p={name,role,phone};
+
+  if(role==="Associate"){
+    p.lcCurve=document.getElementById("profileLcCurve").value;
+    p.group=document.getElementById("profileGroup").value;
+  }else{
+    p.lcCurve="";
+    p.group="";
+  }
+
+  profiles[id]=p;
+  e.name=name;
+  e.role=role;
+  e.phone=phone;
+  e.lcCurve=p.lcCurve||"";
+  e.group=p.group||"";
+  e.cab="";
+  e.joiningDate="";
+  e.email="";
+  e.status="Active";
+
+  saveAll();
+
+  if(typeof refreshLiveDataViews==="function")refreshLiveDataViews();
+  if(typeof refreshAllViews==="function")refreshAllViews();
+  if(typeof renderEmployees==="function")renderEmployees();
+  loadProfile();
+
+  document.getElementById("profileMessage").innerText=
+    "✓ Profile saved successfully.";
+}
+
+function selectEmployeeRole(role){
+  role=role==="TL"?"TL":role==="Manager"?"Manager":"Associate";
+  document.getElementById("employeeRole").value=role;
+
+  ["Associate","TL","Manager"].forEach(r=>{
+    document.getElementById("employeeRole"+r)
+      ?.classList.toggle("active",r===role);
+  });
+
+  document.getElementById("employeeAssociateFields")
+    ?.classList.toggle("hidden",role!=="Associate");
+  document.getElementById("employeeLeadershipFields")
+    ?.classList.toggle("hidden",role==="Associate");
+}
+
+function openEmployeeModal(id=null){
+  document.getElementById("employeeModal").classList.add("show");
+  document.getElementById("editEmployeeId").value=id||"";
+  document.getElementById("employeeModalTitle").innerText=
+    id?"Edit Employee":"Add Employee";
+
+  if(id){
+    const e=employees.find(x=>Number(x.id)===Number(id));
+    if(!e){closeEmployeeModal();return;}
+
+    document.getElementById("employeeName").value=e.name||"";
+    document.getElementById("employeeLcCurve").value=e.lcCurve||"FT1";
+    document.getElementById("employeeGroup").value=e.group||"A";
+    document.getElementById("employeePhone").value=e.phone||"";
+    document.getElementById("employeeLeadershipPhone").value=e.phone||"";
+    document.getElementById("employeeDhhPhone").value=e.phone||"";
+    document.getElementById("employeeDhhGroup").value=e.group||"A";
+    selectEmployeeRole(e.role);
+  }else{
+    document.getElementById("employeeName").value="";
+    document.getElementById("employeeLcCurve").value="FT1";
+    document.getElementById("employeeGroup").value="A";
+    document.getElementById("employeePhone").value="";
+    document.getElementById("employeeLeadershipPhone").value="";
+    document.getElementById("employeeDhhPhone").value="";
+    document.getElementById("employeeDhhGroup").value="A";
+    selectEmployeeRole("Associate");
+  }
+}
+
+function closeEmployeeModal(){
+  document.getElementById("employeeModal").classList.remove("show");
+}
+
+function saveEmployee(){
+  const id=document.getElementById("editEmployeeId").value;
+  const name=document.getElementById("employeeName").value.trim();
+  const role=document.getElementById("employeeRole").value||"Associate";
+
+  if(!name){
+    alert("Please enter employee name.");
+    return;
+  }
+
+  const associate=role==="Associate";
+  const phone=(associate
+    ?document.getElementById("employeePhone").value
+    :document.getElementById("employeeLeadershipPhone").value
+  ).trim();
+
+  const data={
+    name,
+    role,
+    phone,
+    lcCurve:associate?document.getElementById("employeeLcCurve").value:"",
+    group:associate?document.getElementById("employeeGroup").value:"",
+    cab:"",
+    joiningDate:"",
+    email:"",
+    status:"Active"
+  };
+
+  if(id){
+    const e=employees.find(x=>Number(x.id)===Number(id));
+    if(!e){alert("Employee not found.");return;}
+    Object.assign(e,data);
+  }else{
+    employees.push({
+      id:nextEmployeeId(),
+      ...data
+    });
+  }
+
+  profiles[employees[employees.length-1].id]={
+    name:data.name,
+    role:data.role,
+    phone:data.phone,
+    lcCurve:data.lcCurve,
+    group:data.group
+  };
+
+  saveAll();
+  closeEmployeeModal();
+
+  if(typeof refreshLiveDataViews==="function")refreshLiveDataViews();
+  if(typeof refreshAllViews==="function")refreshAllViews();
+}
+
+function renderAvailability(){
+  const tbody=document.getElementById("availabilityTable");if(!tbody)return;
+  if(!availability.length){tbody.innerHTML=`<tr><td colspan="6" class="empty">🟢 No availability records.</td></tr>`;return;}
+  tbody.innerHTML=availability.map((a,i)=>{
+    const e=employees.find(x=>Number(x.id)===Number(a.employeeId));
+    return `<tr>
+      <td>${esc(e?.name||"Unknown")}</td><td>${esc(a.date)}</td>
+      <td><span class="status-badge ${a.status==="Available"?"status-active":"status-inactive"}">${esc(a.status)}</span></td>
+      <td>${esc(availabilityPatternLabel(a))}</td><td>${esc(a.reason||"-")}</td>
+      <td><button type="button" class="small-btn danger" data-delete-availability="${i}">🗑 Delete</button></td>
+    </tr>`;
+  }).join("");
+}
+function availabilityPatternLabel(a){
+  const p=a?.pattern||"1W_DAY_1W_NIGHT";
+  if(p==="2W_DAY")return"2 Weeks 09:45-19:45 Shift";
+  if(p==="2W_NIGHT")return"2 Weeks 20:00 - 06:00 Shift";
+  if(p==="3W_DAY")return"3 Weeks 09:45-19:45 Shift";
+  if(p==="3W_NIGHT")return"3 Weeks 20:00 - 06:00 Shift";
+  if(p==="CUSTOM")return a.customPattern||"Customized";
+  return"1 Week DAY + 1 Week NIGHT";
+}
+function toggleCustomAvailability(){
+  const p=document.getElementById("availabilityPattern")?.value;
+  document.getElementById("customAvailabilityField")?.classList.toggle("hidden",p!=="CUSTOM");
+}
+function saveAvailability(){
+  const employeeId=Number(document.getElementById("availabilityEmployee").value);
+  const date=document.getElementById("availabilityDate").value;
+  const status=document.getElementById("availabilityStatus").value;
+  const reason=document.getElementById("availabilityReason").value.trim();
+  const pattern=document.getElementById("availabilityPattern").value;
+  const customPattern=document.getElementById("availabilityCustomPattern").value.trim();
+  if(!employeeId||!date){alert("Select employee and date.");return;}
+  availability=availability.filter(a=>!(Number(a.employeeId)===employeeId&&a.date===date));
+  availability.push({employeeId,date,status,reason,pattern,customPattern});
+  saveAll();renderAvailability();
+  if(rosterData.length)regenerateRoster(false);
+  updateDashboard();updateReports();
+  document.getElementById("availabilityReason").value="";
+  document.getElementById("availabilityCustomPattern").value="";
+  addNotification("Availability Updated","Roster automatically recalculated for the selected employee.");
+}
+function deleteAvailability(index){
+  index=Number(index);
+  if(!Number.isInteger(index)||index<0||index>=availability.length)return false;
+  if(!confirm("Delete this availability record?"))return false;
+  availability.splice(index,1);
+  saveAll();
+  if(rosterData.length)regenerateRoster(false);
+  refreshAllViews();
+  return false;
+}
+
+function daysInSelectedMonth(){
+  const value=document.getElementById("rosterMonth").value;
+  if(!value){const d=new Date();return new Date(d.getFullYear(),d.getMonth()+1,0).getDate();}
+  const [y,m]=value.split("-").map(Number);
+  return new Date(y,m,0).getDate();
+}
+function rosterDateForDay(day){
+  const month=document.getElementById("rosterMonth").value;
+  const now=new Date();
+  const [y,m]=month?[...month.split("-").map(Number)]:[now.getFullYear(),now.getMonth()+1];
+  return `${y}-${String(m).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+}
+function isUnavailable(employeeId,day){
+  const date=rosterDateForDay(day);
+  return availability.some(a=>Number(a.employeeId)===Number(employeeId)&&a.date===date&&a.status==="Unavailable");
+}
+function getAvailabilityRecord(employeeId,day){
+  const date=rosterDateForDay(day);
+  return availability.find(a=>Number(a.employeeId)===Number(employeeId)&&a.date===date&&a.status==="Available");
+}
+function shiftFromPattern(pattern,day,index,lcCurve){
+  // Fixed 10-week rotation that continues across roster months:
+  // 2 weeks NIGHT -> 2 weeks DAY -> 3 weeks NIGHT -> 3 weeks DAY.
+  // The absolute week number keeps the rotation continuous from one roster to the next.
+  const date=new Date(rosterDateForDay(day)+"T12:00:00");
+  const anchor=new Date("2026-01-05T12:00:00"); // Monday anchor
+  const diffWeeks=Math.floor((date-anchor)/(7*24*60*60*1000));
+  const employeeOffset=Math.max(0,Number(index||0)) % 10;
+  const phase=((diffWeeks + employeeOffset) % 10 + 10) % 10;
+  if(phase<2) return "NIGHT";       // weeks 1-2
+  if(phase<4) return "DAY";         // weeks 3-4
+  if(phase<7) return "NIGHT";       // weeks 5-7
+  return "DAY";                     // weeks 8-10
+}
+function isGroupWeekOff(group,day){
+  const pair=WEEK_OFF_GROUPS[group];if(!pair)return false;
+  const parts=pair.split("-");
+  const date=new Date(rosterDateForDay(day)+"T12:00:00");
+  const wd=date.toLocaleDateString("en-US",{weekday:"short"});
+  return parts.some(x=>wd.toLowerCase().startsWith(x.slice(0,3).toLowerCase()));
+}
+function getEmployeePattern(employeeId){
+  const records=availability.filter(a=>Number(a.employeeId)===Number(employeeId)&&a.status==="Available");
+  if(!records.length)return null;
+  records.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const a=records[0];
+  return {type:a.pattern||"1W_DAY_1W_NIGHT",custom:a.customPattern||""};
+}
+
+function generateRoster(showToast=true){
+  if(!employees.length){
+    alert("Please add employees before generating the roster.");
+    return false;
+  }
+
+  const associates=employees.filter(e=>["Associate","DHH"].includes(e.role||"Associate"));
+  if(!associates.length){alert("Please add at least one Associate or DHH before generating the roster.");return false;}
+
+  const days=7;
+  const startDate=getRosterStartDate();
+
+  const groupOff={
+    A:[0,1],
+    B:[1,2],
+    C:[2,3],
+    D:[3,4],
+    E:[4,5],
+    F:[5,6],
+    G:[6,0]
+  };
+
+  const rows=associates.map((e,idx)=>({
+    employeeId:e.id,
+    name:e.name,
+    group:e.group||"A",
+    lcCurve:e.role==="Associate"?(e.lcCurve||"FT1"):"",
+    shifts:Array(days).fill("OFF"),
+    idx
+  }));
+
+  // Preserve the intended rotation pattern:
+  // 2N : 2D : 3N : 3D
+  // The pattern is independent of FT1/FT2.
+  const pattern=["NIGHT","NIGHT","DAY","DAY","NIGHT","NIGHT","NIGHT","DAY","DAY","DAY"];
+
+  rows.forEach(r=>{
+    for(let d=0;d<days;d++){
+      const dow=d; // relative weekday within displayed roster
+      const offs=groupOff[r.group]||groupOff.A;
+      if(offs.includes(dow)){
+        r.shifts[d]="OFF";
+      }else{
+        // Offset employees so all associates do not receive identical blocks.
+        let p=pattern[(r.idx+d)%pattern.length];
+        if(d>0 && r.shifts[d-1]==="NIGHT" && p==="DAY") p="OFF";
+        const av=getAvailabilityRecord(r.employeeId,d+1);
+        if(constraints.useAvailability==="yes" && isUnavailable(r.employeeId,d+1)) p="OFF";
+        else if(av && av.pattern){
+          const ap=shiftFromPattern(av.pattern,d+1,r.idx,r.lcCurve);
+          if(!(r.shifts[d-1]==="NIGHT" && ap==="DAY")) p=ap;
+        }
+        r.shifts[d]=p;
+      }
+    }
+  });
+
+  // Balance FT1/FT2 across DAY and NIGHT without ever assigning NIGHT -> DAY next day.
+  for(let d=0;d<days;d++){
+    ["DAY","NIGHT"].forEach(shift=>{
+      let a=rows.filter(r=>r.shifts[d]===shift && r.lcCurve);
+      let f1=a.filter(r=>r.lcCurve==="FT1").length, f2=a.filter(r=>r.lcCurve==="FT2").length;
+      if(Math.abs(f1-f2)<=1)return;
+      const fromCurve=f1>f2?"FT1":"FT2", toCurve=f1>f2?"FT2":"FT1";
+      const candidates=rows.filter(r=>r.lcCurve===fromCurve && r.shifts[d]===shift);
+      for(const r of candidates){
+        const alt=rows.find(x=>x.lcCurve===toCurve && x.shifts[d]!==(shift) && x.shifts[d]!=="OFF" && !(d>0&&x.shifts[d-1]==="NIGHT"&&shift==="DAY"));
+        if(alt){const tmp=alt.shifts[d];alt.shifts[d]=shift;r.shifts[d]=tmp;break;}
+      }
+    });
+  }
+
+  rosterData=rows;
+  rosterStartDate=startDate;
+  saveAll();
+
+  renderRoster();
+  if(typeof refreshLiveDataViews==="function")refreshLiveDataViews();
+  if(typeof refreshAllViews==="function")refreshAllViews();
+
+  if(showToast){
+    addNotification(
+      "Roster Generated",
+      "Roster generated with FT1/FT2 tracked across both shift types."
+    );
+  }
+
+  return true;
+}
+
+function getRosterStartDate(){
+  if(typeof rosterStartDate==="string" && rosterStartDate)return rosterStartDate;
+  const now=new Date();
+  const day=now.getDay();
+  const diff=day===0?0:1-day;
+  const monday=new Date(now);
+  monday.setDate(now.getDate()+diff);
+  return monday.toISOString().slice(0,10);
+}
+
+function renderRoster(){
+  const head=document.getElementById("rosterHead"),body=document.getElementById("rosterBody");
+  if(!head||!body)return;
+  if(!rosterData.length){
+    head.innerHTML="";
+    body.innerHTML=`<tr><td class="empty">📅 Generate a roster to view it.</td></tr>`;
+    return;
+  }
+
+  const filter=document.getElementById("rosterRoleFilter")?.value||"ALL";
+  const rows=rosterData.filter(r=>{
+    const e=employees.find(x=>Number(x.id)===Number(r.employeeId));
+    if(!e)return false;
+    if(filter==="ALL")return true;
+    if(filter==="MALE_ASSOCIATE")return e.role==="Associate"&&e.gender==="Male";
+    if(filter==="FEMALE_ASSOCIATE")return e.role==="Associate"&&e.gender==="Female";
+    return e.role===filter;
+  });
+
+  if(!rows.length){
+    head.innerHTML="";
+    body.innerHTML=`<tr><td class="empty">No employees found for this role.</td></tr>`;
+    return;
+  }
+
+  const days=rows[0].shifts.length;
+  const headerDate=(i)=>{
+    const date=rosterDateForDay(i+1);
+    const d=new Date(date+"T12:00:00");
+    const dayName=d.toLocaleDateString("en-US",{weekday:"short"});
+    const dateText=d.toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit"});
+    return `<th class="roster-date-head"><span>${dayName}</span><br><small>${dateText}</small></th>`;
+  };
+
+  head.innerHTML=`<tr><th>Employee</th><th>Role</th><th>Group</th><th>LC Curve</th>${Array.from({length:days},(_,i)=>headerDate(i)).join("")}</tr>`;
+
+  body.innerHTML=rows.map(r=>{
+    const e=employees.find(x=>Number(x.id)===Number(r.employeeId));
+    return `<tr>
+      <td><b>${esc(r.name)}</b></td>
+      <td>${roleBadge(e?.role||"")}</td>
+      <td>${esc(r.group)}</td>
+      <td><span class="role-badge ${e?.lcCurve==="FT2"?"lc-ft2":"lc-ft1"}">${esc(e?.lcCurve||"FT1")}</span></td>
+      ${r.shifts.map((s,i)=>{
+        const cls=s==="DAY"?"shift-day":s==="NIGHT"?"shift-night":"shift-off";
+        return `<td class="${cls}" title="Click to change this shift">
+          <select class="roster-shift-editor ${cls}" aria-label="Change ${esc(r.name)} shift"
+            onchange="changeRosterShift(${Number(r.employeeId)},${i},this.value)">
+            <option value="DAY" ${s==="DAY"?"selected":""}>09:45-19:45</option>
+            <option value="NIGHT" ${s==="NIGHT"?"selected":""}>20:00 - 06:00</option>
+            <option value="OFF" ${s==="OFF"?"selected":""}>OFF</option>
+          </select>
+        </td>`;
+      }).join("")}
+    </tr>`;
+  }).join("");
+}
+
+function changeRosterShift(employeeId,dayIndex,newShift){
+  const row=rosterData.find(r=>Number(r.employeeId)===Number(employeeId));
+  if(!row || !["DAY","NIGHT","OFF"].includes(newShift))return;
+
+  const oldShift=row.shifts[dayIndex];
+  row.shifts[dayIndex]=newShift;
+
+  // Keep the employee metadata in the roster record current.
+  const e=employees.find(x=>Number(x.id)===Number(employeeId));
+  if(e){
+    row.name=e.name;
+    row.group=e.group;
+  }
+
+  saveAll();
+
+  // The overview is derived from rosterData, so every manual roster edit
+  // immediately flows into the dashboard and reports.
+  refreshOverviewOnly();
+  renderRoster();
+  updateDashboard();
+  updateReports();
+
+  if(oldShift!==newShift){
+    addNotification(
+      "Roster Updated",
+      `${e?.name||"Employee"}: ${oldShift} → ${newShift} on ${rosterDateForDay(dayIndex+1)}. Overview updated automatically.`
+    );
+  }
+}
+
+function getFilteredRosterRows(){
+  const filter=document.getElementById("rosterRoleFilter")?.value||"ALL";
+  return (Array.isArray(rosterData)?rosterData:[]).filter(r=>{
+    const e=employees.find(x=>Number(x.id)===Number(r.employeeId));
+    if(!e)return false;
+    if(filter==="ALL")return true;
+    if(filter==="MALE_ASSOCIATE")return e.role==="Associate"&&e.gender==="Male";
+    if(filter==="FEMALE_ASSOCIATE")return e.role==="Associate"&&e.gender==="Female";
+    return e.role===filter;
+  });
+}
+
+function csvEscape(value){
+  return `"${String(value??"").replace(/"/g,'""')}"`;
+}
+
+function downloadCSV(){
+  try{
+    if(!Array.isArray(rosterData)||!rosterData.length){
+      if(!generateRoster())return;
+    }
+    const rows=getFilteredRosterRows();
+    if(!rows.length){alert("No employees found for the selected filter.");return;}
+    const days=rows[0].shifts.length;
+    const headers=["Employee","Role","Group","LC Curve",...Array.from({length:days},(_,i)=>{
+      const d=new Date(rosterDateForDay(i+1)+"T12:00:00");
+      return `${d.toLocaleDateString("en-US",{weekday:"short"})} ${d.toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit"})}`;
+    })];
+    const lines=[headers.map(csvEscape).join(",")];
+    rows.forEach(r=>{
+      const e=employees.find(x=>Number(x.id)===Number(r.employeeId));
+      lines.push([r.name,e?.role||"",r.group||"",e?.lcCurve||"FT1",...r.shifts.map(shiftLabel)].map(csvEscape).join(","));
+    });
+    const blob=new Blob(["\uFEFF"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=`SXVD_Roster_${document.getElementById("rosterMonth")?.value||"current"}.csv`;
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }catch(err){
+    console.error("CSV export failed:",err);
+    alert("CSV export failed: "+(err?.message||err));
+  }
+}
+
+/* ---------- Automatic forthcoming-week clock / rollover ---------- */
+function getTodayISO(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function getNextMonday(date=new Date()){
+  const d=new Date(date); d.setHours(0,0,0,0);
+  const day=d.getDay();
+  const add=day===1?7:(8-day)%7;
+  d.setDate(d.getDate()+add);
+  return d;
+}
+function updateLiveRosterClock(){
+  const now=new Date();
+  const dateEl=document.getElementById("liveRosterDate");
+  const clockEl=document.getElementById("liveRosterClock");
+  const nextEl=document.getElementById("nextWeekUpdate");
+  if(dateEl)dateEl.textContent=now.toLocaleDateString("en-IN",{weekday:"long",day:"2-digit",month:"short",year:"numeric"});
+  if(clockEl)clockEl.textContent=now.toLocaleTimeString("en-IN",{hour12:false});
+  if(nextEl)nextEl.textContent=getNextMonday(now).toLocaleDateString("en-IN",{weekday:"short",day:"2-digit",month:"short"})+" 00:00";
+}
+let lastAutoRosterDate="";
+function autoUpdateForthcomingWeek(){
+  const today=getTodayISO();
+  if(lastAutoRosterDate===today)return;
+  lastAutoRosterDate=today;
+  const month=document.getElementById("rosterMonth");
+  if(month){
+    const now=new Date();
+    const currentMonth=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+    if(!month.value)month.value=currentMonth;
+    /* When a new day/week arrives, rebuild the current month's roster automatically. */
+    if(month.value===currentMonth && employees.length && rosterData.length){
+      regenerateRoster(false);
+    }else{
+      renderRoster(); updateDashboard(); updateReports();
+    }
+  }
+  updateLiveRosterClock();
+}
+function startAutomaticRosterClock(){
+  updateLiveRosterClock();
+  autoUpdateForthcomingWeek();
+  setInterval(()=>{
+    updateLiveRosterClock();
+    autoUpdateForthcomingWeek();
+  },60000);
+}
+
+/* ---------- Styled Excel export ---------- */
+function excelFallbackDownload(rows,days){
+  const headers=["Employee","Role","Group","LC Curve",...Array.from({length:days},(_,i)=>{
+    const d=new Date(rosterDateForDay(i+1)+"T12:00:00");
+    return `${d.toLocaleDateString("en-US",{weekday:"short"})} ${d.toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit"})}`;
+  })];
+  const fill={DAY:"#FFF2CC",NIGHT:"#D9E2F3",OFF:"#F4CCCC"};
+  const font={DAY:"#7A4E00",NIGHT:"#173F8A",OFF:"#991B1B"};
+  const escHtml=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+  const th=headers.map(h=>`<th>${escHtml(h)}</th>`).join("");
+  const tr=rows.map(r=>{
+    const e=employees.find(x=>Number(x.id)===Number(r.employeeId));
+    return `<tr><td>${escHtml(r.name)}</td><td>${escHtml(e?.role||"")}</td><td>${escHtml(r.group||"")}</td><td>${escHtml(e?.lcCurve||"FT1")}</td>`+r.shifts.map(s=>`<td style="background:${fill[s]||"#fff"};color:${font[s]||"#111827"};font-weight:bold;text-align:center">${escHtml(shiftLabel(s))}</td>`).join("")+`</tr>`;
+  }).join("");
+  const html=`<html><head><meta charset="UTF-8"><style>body{font-family:Arial}table{border-collapse:collapse}th{background:#173F8A;color:#fff;font-weight:bold;padding:8px;border:1px solid #ccc}td{padding:7px;border:1px solid #ddd;white-space:nowrap}.title{font-size:18px;font-weight:bold}</style></head><body><table><tr><th colspan="${headers.length}" class="title">SXVD MONTHLY ROSTER</th></tr><tr>${th}</tr>${tr}</table><br><table><tr><th>Shift</th><th>Timing</th></tr><tr><td style="background:#FFF2CC">DAY</td><td>09:45-19:45</td></tr><tr><td style="background:#D9E2F3">NIGHT</td><td>20:00-06:00</td></tr><tr><td style="background:#F4CCCC">OFF</td><td>Week Off / Unavailable</td></tr></table></body></html>`;
+  const blob=new Blob([html],{type:"application/vnd.ms-excel;charset=utf-8"});
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`SXVD_Roster_${document.getElementById("rosterMonth")?.value||"current"}.xls`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+async function downloadExcel(){
+  try{
+    if(!Array.isArray(rosterData)||!rosterData.length){
+      if(!generateRoster())return;
+    }
+    const rows=getFilteredRosterRows();
+    if(!rows.length){alert("No employees found for the selected filter.");return;}
+    const days=rows[0].shifts.length;
+    if(typeof ExcelJS==="undefined"){
+      // Offline/CDN-blocked fallback. Excel opens this .xls with the same shift colors.
+      excelFallbackDownload(rows,days);
+      return;
+    }
+    const wb=new ExcelJS.Workbook();
+    wb.creator="SXVD Roster Management System";
+    wb.created=new Date();
+    const ws=wb.addWorksheet("Monthly Roster",{views:[{state:"frozen",xSplit:5,ySplit:2}]});
+    const headers=["Employee","Role","Group","LC Curve","Cab"];
+    for(let i=1;i<=days;i++){
+      const d=new Date(rosterDateForDay(i)+"T12:00:00");
+      headers.push(`${d.toLocaleDateString("en-US",{weekday:"short"})} ${d.toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit"})}`);
+    }
+    ws.addRow(["SXVD MONTHLY ROSTER"]);
+    ws.mergeCells(1,1,1,headers.length);
+    ws.getCell(1,1).font={bold:true,size:16,color:{argb:"FFFFFFFF"}};
+    ws.getCell(1,1).fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF173F8A"}};
+    ws.getCell(1,1).alignment={horizontal:"center",vertical:"middle"};
+    ws.getRow(1).height=28;
+    ws.addRow(headers);
+    ws.getRow(2).eachCell(c=>{c.font={bold:true,color:{argb:"FFFFFFFF"}};c.alignment={horizontal:"center",vertical:"center",wrapText:true};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF173F8A"}};});
+    const fillMap={DAY:"FFFFF2CC",NIGHT:"FFD9E2F3",OFF:"FFF4CCCC"};
+    const fontMap={DAY:"FF7A4E00",NIGHT:"FF173F8A",OFF:"FF991B1B"};
+    rows.forEach(r=>{
+      const e=employees.find(x=>Number(x.id)===Number(r.employeeId));
+      const row=ws.addRow([r.name,e?.role||"",r.group||"",e?.lcCurve||"FT1",e?.cab||"Cab 1",...r.shifts.map(shiftLabel)]);
+      row.eachCell((cell,col)=>{cell.alignment={vertical:"middle",horizontal:col<=5?"left":"center",wrapText:true};cell.border={bottom:{style:"hair",color:{argb:"FFE5E7EB"}}};});
+      r.shifts.forEach((shift,i)=>{const cell=row.getCell(6+i);cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:fillMap[shift]||"FFFFFFFF"}};cell.font={bold:true,color:{argb:fontMap[shift]||"FF111827"}};});
+    });
+    ws.getColumn(1).width=24;ws.getColumn(2).width=14;ws.getColumn(3).width=10;ws.getColumn(4).width=11;ws.getColumn(5).width=11;
+    for(let i=6;i<=days+5;i++)ws.getColumn(i).width=18;
+    ws.autoFilter={from:{row:2,column:1},to:{row:2,column:days+5}};
+    const info=wb.addWorksheet("Shift Legend");
+    info.addRow(["Shift","Timing","Meaning"]);
+    info.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:"FFFFFFFF"}};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF173F8A"}};});
+    [["DAY","09:45-19:45","Day Shift"],["NIGHT","20:00-06:00","Night Shift"],["OFF","OFF","Week Off / Unavailable"]].forEach(x=>info.addRow(x));
+    ["DAY","NIGHT","OFF"].forEach((shift,i)=>{const c=info.getCell(i+2,1);c.fill={type:"pattern",pattern:"solid",fgColor:{argb:fillMap[shift]}};c.font={bold:true,color:{argb:fontMap[shift]}};});
+    info.getColumn(1).width=14;info.getColumn(2).width=18;info.getColumn(3).width=28;
+    const buffer=await wb.xlsx.writeBuffer();
+    const blob=new Blob([buffer],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+    const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`SXVD_Roster_${document.getElementById("rosterMonth")?.value||"current"}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }catch(err){
+    console.error("Excel export failed:",err);
+    try{ excelFallbackDownload(getFilteredRosterRows(),getFilteredRosterRows()[0]?.shifts.length||0); }
+    catch(fallbackErr){ alert("Excel export failed: "+(err?.message||err)); }
+  }
+}
+
+/* ---------- Weekly Operations Report Excel ---------- */
+async function downloadWeeklyOperationsExcel(){
+  try{
+    if(!Array.isArray(rosterData)||!rosterData.length){
+      if(!generateRoster())return;
+    }
+
+    populateReportWeekSelector();
+
+    const weeks=getReportWeeks();
+    if(!weeks.length){
+      alert("No roster data available for the monthly overview.");
+      return;
+    }
+
+    const selectedIndex=Number(document.getElementById("reportWeekSelect")?.value||0);
+    const selectedWeek=weeks[selectedIndex]||weeks[0];
+    const days=selectedWeek.rows;
+
+    const headers=["Shift / HC",...days.map(x=>{
+      const d=new Date(x.date+"T12:00:00");
+      return `${d.toLocaleDateString("en-US",{weekday:"short"})} ${d.toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit"})}`;
+    })];
+
+    const overviewRows=[];
+    const add=(label,getValue,kind="normal")=>{
+      overviewRows.push({label,values:days.map(x=>getValue(x)),kind});
+    };
+
+    add("09:45-19:45 09:45-19:45 Shift — FT1 / FT2 Balanced",()=>"", "section");
+    add("Male",x=>x.dayMale);
+    add("FT1",x=>x.dayFt1);
+    add("FT2",x=>x.dayFt2);
+    add("DHH",x=>x.dayDhh);
+    add("Total HC",x=>x.day.length,"total");
+    add("Total HC in 09:45-19:45",x=>x.day.length,"highlight");
+
+    add("20:00 - 06:00 20:00 - 06:00 Shift — FT1 / FT2 Balanced",()=>"", "section");
+    add("Male",x=>x.nightMale);
+    add("FT1",x=>x.nightFt1);
+    add("FT2",x=>x.nightFt2);
+    add("DHH",x=>x.nightDhh);
+    add("Total HC",x=>x.night.length,"total");
+
+    if(typeof ExcelJS!=="undefined"){
+      const wb=new ExcelJS.Workbook();
+      wb.creator="SXVD Roster Management System";
+      wb.created=new Date();
+
+      const ws=wb.addWorksheet(`Week ${selectedIndex+1}`,{
+        views:[{state:"frozen",xSplit:1,ySplit:2}]
+      });
+
+      ws.addRow([`SXVD WEEK ${selectedIndex+1} OVERVIEW REPORT`]);
+      ws.mergeCells(1,1,1,headers.length);
+
+      const title=ws.getCell(1,1);
+      title.font={bold:true,size:16,color:{argb:"FFFFFFFF"}};
+      title.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF173F8A"}};
+      title.alignment={horizontal:"center"};
+
+      ws.addRow(headers);
+      ws.getRow(2).eachCell(c=>{
+        c.font={bold:true,color:{argb:"FFFFFFFF"}};
+        c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF173F8A"}};
+        c.alignment={horizontal:"center",vertical:"middle",wrapText:true};
+      });
+
+      overviewRows.forEach(item=>{
+        const row=ws.addRow([item.label,...item.values]);
+
+        if(item.kind==="section"){
+          row.eachCell(c=>{
+            c.font={bold:true,color:{argb:"FFFFFFFF"}};
+            c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF475467"}};
+          });
+        }else if(item.kind==="total"||item.kind==="highlight"){
+          row.eachCell(c=>c.font={bold:true});
+          if(item.kind==="highlight"){
+            row.eachCell(c=>{
+              c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFEAF2FF"}};
+            });
+          }
+        }
+
+        for(let i=2;i<=headers.length;i++){
+          row.getCell(i).alignment={horizontal:"center"};
+        }
+      });
+
+      ws.getColumn(1).width=38;
+      for(let i=2;i<=headers.length;i++)ws.getColumn(i).width=18;
+
+      const summary=wb.addWorksheet("Week Summary");
+      summary.addRows([
+        ["Metric","Value"],
+        ["Week",`Week ${selectedIndex+1}`],
+        ["Week Start",selectedWeek.start],
+        ["Week End",selectedWeek.end],
+        ["DAY Assignments",days.reduce((n,x)=>n+x.day.length,0)],
+        ["NIGHT Assignments",days.reduce((n,x)=>n+x.night.length,0)],
+        ["OFF Assignments",days.reduce((n,x)=>n+x.off.length,0)],
+        ["FT1 DAY",days.reduce((n,x)=>n+x.dayFt1,0)],
+        ["FT2 DAY",days.reduce((n,x)=>n+x.dayFt2,0)],
+        ["FT1 NIGHT",days.reduce((n,x)=>n+x.nightFt1,0)],
+        ["FT2 NIGHT",days.reduce((n,x)=>n+x.nightFt2,0)]
+      ]);
+
+      summary.getRow(1).eachCell(c=>{
+        c.font={bold:true,color:{argb:"FFFFFFFF"}};
+        c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF173F8A"}};
+      });
+      summary.getColumn(1).width=24;
+      summary.getColumn(2).width=22;
+
+      const buffer=await wb.xlsx.writeBuffer();
+      const blob=new Blob([buffer],{
+        type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      });
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      a.href=url;
+      a.download=`SXVD_Weekly_Overview_Week${selectedIndex+1}_${selectedWeek.start}_to_${selectedWeek.end}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+      return;
+    }
+
+    // Offline Excel-compatible fallback.
+    const escHtml=v=>String(v??"").replace(/[&<>"']/g,c=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+    }[c]));
+
+    const body=overviewRows.map(item=>{
+      const cls=item.kind==="section"?' class="section"':
+        item.kind==="highlight"?' class="highlight"':
+        item.kind==="total"?' class="total"':'';
+
+      return `<tr${cls}>
+        <td>${escHtml(item.label)}</td>
+        ${item.values.map(v=>`<td>${escHtml(v)}</td>`).join("")}
+      </tr>`;
+    }).join("");
+
+    const html=`<html><head><meta charset="UTF-8"><style>
+      table{border-collapse:collapse;font-family:Arial}
+      th,td{border:1px solid #ccc;padding:8px;white-space:nowrap;text-align:center}
+      td:first-child{text-align:left;font-weight:600}
+      th{background:#173F8A;color:#fff}
+      .section td{background:#475467;color:#fff;font-weight:bold}
+      .total td{font-weight:bold}
+      .highlight td{background:#EAF2FF;font-weight:bold}
+    </style></head><body>
+      <table>
+        <tr><th colspan="${headers.length}">SXVD WEEK ${selectedIndex+1} OVERVIEW REPORT</th></tr>
+        <tr>${headers.map(escHtml).map(h=>`<th>${h}</th>`).join("")}</tr>
+        ${body}
+      </table>
+    </body></html>`;
+
+    const blob=new Blob([html],{type:"application/vnd.ms-excel;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=`SXVD_Weekly_Overview_Week${selectedIndex+1}_${selectedWeek.start}_to_${selectedWeek.end}.xls`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+
+  }catch(err){
+    console.error("Weekly Overview export failed:",err);
+    alert("Weekly Overview export failed: "+(err?.message||err));
+  }
+}
+
+/* ---------- Overview / Compliance / Cab calculations ---------- */
+function rosterDayRows(){
+  if(!rosterData.length)return [];
+  const days=rosterData[0].shifts.length;
+  return Array.from({length:days},(_,i)=>{
+    const date=rosterDateForDay(i+1);
+    const active=rosterData.map(r=>({
+      row:r,employee:employees.find(e=>Number(e.id)===Number(r.employeeId)),
+      shift:r.shifts[i]
+    })).filter(x=>x.employee);
+    const day=active.filter(x=>x.shift==="DAY");
+    const night=active.filter(x=>x.shift==="NIGHT");
+    const late=[];
+    const off=active.filter(x=>x.shift==="OFF");
+    const ft1=active.filter(x=>x.employee.lcCurve==="FT1"&&x.shift!=="OFF");
+    const ft2=active.filter(x=>x.employee.lcCurve==="FT2"&&x.shift!=="OFF");
+    return {
+      index:i+1,date,active,day,night,late,off,ft1,ft2,
+      dayCount:day.length,nightCount:night.length,lateCount:late.length,activeCount:active.filter(x=>x.shift!=="OFF").length,
+      dayMale:day.filter(x=>x.employee.gender==="Male").length,
+      dayFt1:day.filter(x=>x.employee.lcCurve==="FT1").length,
+      dayFt2:day.filter(x=>x.employee.lcCurve==="FT2").length,
+      dayDhh:day.filter(x=>x.employee.role==="DHH").length,
+      nightMale:night.filter(x=>x.employee.gender==="Male").length,
+      nightFt1:night.filter(x=>x.employee.lcCurve==="FT1").length,
+      nightFt2:night.filter(x=>x.employee.lcCurve==="FT2").length,
+      nightDhh:night.filter(x=>x.employee.role==="DHH").length,
+      lateMale:0
+    };
+  });
+}
+function renderOverview(headId,bodyId,limitDays=null){
+  const head=document.getElementById(headId),body=document.getElementById(bodyId);
+  if(!head||!body)return;
+
+  const rows=rosterDayRows();
+  if(!rows.length){
+    head.innerHTML="";
+    body.innerHTML=`<tr><td class="empty">Generate a roster to populate the overview.</td></tr>`;
+    return;
+  }
+
+  // Reports = complete month. Dashboard = first 7 days.
+  const days=limitDays ? rows.slice(0,limitDays) : rows;
+
+  head.innerHTML=`<tr>
+    <th>Shift / HC</th>
+    ${days.map(x=>{
+      const d=new Date(x.date+"T12:00:00");
+      return `<th class="monthly-overview-date">
+        ${d.toLocaleDateString("en-US",{weekday:"short"})}<br>
+        ${d.toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit"})}
+      </th>`;
+    }).join("")}
+  </tr>`;
+
+  const overviewValue=(x,key)=>{
+    const value=x[key];
+    if(Array.isArray(value))return value.length;
+    if(value===null||value===undefined)return 0;
+    if(typeof value==="object")return value.count??value.length??0;
+    return value;
+  };
+
+  const r=(label,key,cls="")=>
+    `<tr class="${cls}">
+      <td>${label}</td>
+      ${days.map(x=>`<td>${overviewValue(x,key)}</td>`).join("")}
+    </tr>`;
+
+  body.innerHTML=
+    `<tr class="section-row">
+      <td colspan="${days.length+1}">09:45-19:45 09:45-19:45 Shift — FT1 / FT2 Balanced</td>
+    </tr>`+
+    r("Male","dayMale")+
+    r("FT1","dayFt1")+
+    r("FT2","dayFt2")+
+    r("DHH","dayDhh")+
+    r("Total HC","dayCount","total-row")+
+    r("Total HC in 09:45-19:45","dayCount","highlight")+
+    `<tr class="highlight">
+      <td>Total Working HC</td>
+      ${days.map(x=>`<td>${x.activeCount}</td>`).join("")}
+    </tr>`+
+    `<tr class="section-row">
+      <td colspan="${days.length+1}">20:00 - 06:00 20:00 - 06:00 Shift — FT1 / FT2 Balanced</td>
+    </tr>`+
+    r("Male","nightMale")+
+    r("FT1","nightFt1")+
+    r("FT2","nightFt2")+
+    r("DHH","nightDhh")+
+    r("Total HC","nightCount","total-row");
+}
+
+function getReportWeeks(){
+  const rows=rosterDayRows();
+  if(!rows.length)return [];
+
+  const weeks=[];
+  for(let i=0;i<rows.length;i+=7){
+    const slice=rows.slice(i,i+7);
+    if(slice.length){
+      weeks.push({
+        index:weeks.length,
+        start:slice[0].date,
+        end:slice[slice.length-1].date,
+        rows:slice
+      });
+    }
+  }
+  return weeks;
+}
+
+function getCompliance(){
+  const rows=rosterDayRows();
+  if(!rows.length)return {day:0,night:0,off:0,balanced:true,score:100,issues:[]};
+  let day=0,night=0,late=0,off=0,issues=[];
+  rows.forEach(x=>{day+=x.day.length;night+=x.night.length;late+=x.late.length;off+=x.off.length;});
+  let balanceScore=100;
+  const diff=Math.abs(day-night);
+  if(diff>Math.max(2,Math.round((day+night)*0.15))){balanceScore-=25;issues.push("DAY/NIGHT distribution is not balanced.");}
+  const ftBalance=getFtBalanceStats();
+  if(!ftBalance.balanced){
+    balanceScore-=15;
+    issues.push(`FT1/FT2 is not balanced within every DAY/NIGHT shift (maximum gap: ${ftBalance.maxGap}).`);
+  }
+  const minOff=Number(constraints.minOffDays||1);
+  rosterData.forEach(r=>{
+    let offCount=r.shifts.filter(s=>s==="OFF").length;
+    if(offCount<minOff)issues.push(`${r.name} has fewer than ${minOff} weekly OFF assignment(s).`);
+    let run=0;
+    r.shifts.forEach((s,i)=>{
+      if(s==="OFF"){run=0;}else{run++;if(run>Number(constraints.maxWorkDays||6)&&!issues.some(x=>x.startsWith(r.name+" has exceeded"))){issues.push(`${r.name} has exceeded the maximum consecutive work-day limit.`);}}
+      if(!constraints.nightDayRule==="yes"&&i>0&&r.shifts[i-1]==="NIGHT"&&s==="DAY"){}
+    });
+  });
+  const targetDay=Number(settings.dayRequired||0)*rows.length;
+  const targetNight=Number(settings.nightRequired||0)*rows.length;
+  if(targetDay&&day<targetDay)issues.push(`DAY HC is below the configured requirement on the roster.`);
+  if(targetNight&&night<targetNight)issues.push(`NIGHT HC is below the configured requirement on the roster.`);
+  const score=Math.max(0,Math.min(100,balanceScore-Math.min(50,issues.length*5)));
+  return {day,night,late,off,balanced:issues.length===0,score,issues};
+}
+function getFtBalanceStats(){
+  const rows=rosterDayRows();
+  let maxGap=0;
+  rows.forEach(x=>{
+    maxGap=Math.max(maxGap,Math.abs(x.dayFt1-x.dayFt2),Math.abs(x.nightFt1-x.nightFt2));
+  });
+  return {maxGap,balanced:maxGap<=1};
+}
+function getFtBalanceLabel(){
+  const b=getFtBalanceStats();
+  return b.balanced?"Balanced":"Gap "+b.maxGap;
+}
+function complianceCards(targetId){
+  const box=document.getElementById(targetId);if(!box)return;
+  const c=getCompliance();
+  const status=c.score>=90?"compliance-good":c.score>=75?"compliance-warn":"compliance-bad";
+  box.innerHTML=`
+    <div class="compliance-card ${status}"><h4>DAY / NIGHT Balance</h4><strong>${Math.abs(c.day-c.night)===0?"Balanced":"Gap "+Math.abs(c.day-c.night)}</strong></div>
+    <div class="compliance-card ${c.off>0?"compliance-good":"compliance-warn"}"><h4>Week-Off Compliance</h4><strong>${c.off} OFF</strong></div>
+    <div class="compliance-card ${status}"><h4>Overall Compliance</h4><strong>${c.score}%</strong></div>
+    <div class="compliance-card ${c.late>=0?"compliance-good":"compliance-warn"}"><h4>Shift Coverage</h4><strong>${c.late}</strong></div>`;
+}
+function renderWeekOffGroups(){
+  const box=document.getElementById("weekoffGroupDashboard");if(!box)return;
+  box.innerHTML=Object.entries(WEEK_OFF_GROUPS).map(([g,days])=>`
+    <div class="weekoff-group"><strong>Group ${g}</strong><span class="weekoff-days">📅 ${days}</span>
+    <small style="display:block;margin-top:7px;color:#667085">Employees: ${employees.filter(e=>e.group===g).length}</small></div>
+  `).join("");
+}
+function updateDashboard(){
+  renderOverview("dashboardOverviewHead","dashboardOverviewBody",7);
+  renderWeekOffGroups();
+  const dn=document.getElementById("dashboardNotifications");
+  if(dn)dn.innerHTML=notifications.length?notifications.slice(-5).reverse().map(n=>`<div class="suggestion"><b>${esc(n.title)}</b><br>${esc(n.message)}<br><small>${esc(n.time)}</small></div>`).join(""):`<div class="empty">No notifications.</div>`;
+  renderNotifications();
+}
+function updateReports(force=false){
+  populateReportWeekSelector();
+  renderOverview("reportOverviewHead","reportOverviewBody",null);
+  const last=document.getElementById("reportLastUpdated");
+  if(last)last.innerText="Updated "+new Date().toLocaleTimeString();
+  try{renderMonthlyOverview();}catch(e){}
+}
+function runAI(){
+  const out=document.getElementById("aiOutput");
+  if(!out)return;
+  try{
+    if(!Array.isArray(employees)||!employees.length){out.innerHTML=`<div class="suggestion">👥 <b>Add employees first.</b><br>The AI Roster Assistant will analyze the roster after employees are added.</div>`;return;}
+    if(!Array.isArray(rosterData)||!rosterData.length){out.innerHTML=`<div class="suggestion">📅 <b>Roster not generated yet.</b><br>Generate the roster first. The assistant will then analyze shifts, availability, week-offs and coverage.</div>`;return;}
+    const c=getCompliance(), days=rosterData[0]?.shifts?.length||0, first7=Math.min(7,days), issues=[];
+    for(let d=0;d<first7;d++){
+      const date=rosterDateForDay(d+1), dayName=new Date(date+"T12:00:00").toLocaleDateString("en-US",{weekday:"short"});
+      const dc=rosterData.filter(r=>r.shifts[d]==="DAY").length, nc=rosterData.filter(r=>r.shifts[d]==="NIGHT").length;
+      const rd=Number(settings.dayRequired||0), rn=Number(settings.nightRequired||0);
+      if(rd>0&&dc<rd)issues.push(`⚠️ ${dayName}: DAY coverage is ${dc}/${rd}.`);
+      if(rn>0&&nc<rn)issues.push(`⚠️ ${dayName}: NIGHT coverage is ${nc}/${rn}.`);
+    }
+    let unavailableAssigned=0;
+    rosterData.forEach(r=>{for(let d=1;d<=first7;d++)if(r.shifts[d-1]!=="OFF"&&constraints.useAvailability==="yes"&&isUnavailable(r.employeeId,d))unavailableAssigned++;});
+    if(unavailableAssigned)issues.push(`⚠️ ${unavailableAssigned} shift(s) conflict with employee availability.`);
+    const maxWork=Number(constraints.maxWorkDays||6); let consecutiveIssues=0;
+    rosterData.forEach(r=>{let run=0;r.shifts.slice(0,first7).forEach(s=>{if(s==="OFF")run=0;else{run++;if(run>maxWork)consecutiveIssues++;}});});
+    if(consecutiveIssues)issues.push(`⚠️ ${consecutiveIssues} consecutive-work-day limit issue(s) detected.`);
+    const dayTotal=rosterData.reduce((n,r)=>n+r.shifts.slice(0,first7).filter(s=>s==="DAY").length,0);
+    const nightTotal=rosterData.reduce((n,r)=>n+r.shifts.slice(0,first7).filter(s=>s==="NIGHT").length,0);
+    const lateTotal=0;
+    const offTotal=rosterData.reduce((n,r)=>n+r.shifts.slice(0,first7).filter(s=>s==="OFF").length,0);
+    const gap=Math.abs(dayTotal-nightTotal);
+    const male=employees.filter(e=>e.gender==="Male").length, female=employees.filter(e=>e.gender==="Female").length, ft1=employees.filter(e=>e.lcCurve==="FT1").length, ft2=employees.filter(e=>e.lcCurve==="FT2").length;
+    const recommendation=issues.length?"Review the warnings and regenerate the roster after correcting the affected data.":gap>Math.max(2,Math.ceil((dayTotal+nightTotal)*0.25))?"DAY/NIGHT allocation is not well balanced. Review rotation patterns.":"Current roster looks healthy. Continue monitoring coverage and availability.";
+    out.innerHTML=`<div style="margin-bottom:12px"><b>🤖 AI Roster Assistant Analysis</b><br><small>Updated ${new Date().toLocaleString()}</small></div><div class="suggestion"><b>Overall Compliance:</b> ${c.score}%<br><b>Employees:</b> ${employees.length} | <b>Male:</b> ${male} | <b>Female:</b> ${female} | <b>FT1:</b> ${ft1} | <b>FT2:</b> ${ft2}</div><div class="suggestion"><b>First ${first7} Days:</b><br>09:45-19:45: ${dayTotal} | 20:00 - 06:00: ${nightTotal} | 🔴 OFF: ${offTotal}<br>⚖️ FT1/FT2: ${getFtBalanceLabel()}</div><div class="suggestion"><b>AI Checks</b><br>${issues.length?issues.map(x=>`<div>${esc(x)}</div>`).join(""):"✅ No major issues detected."}</div><div class="suggestion"><b>Recommended action:</b> ${esc(recommendation)}</div>`;
+  }catch(err){console.error("AI Roster Assistant failed:",err);out.innerHTML=`<div class="suggestion">⚠️ AI analysis could not be completed.<br>${esc(err?.message||err)}</div>`;}
+}
+
+/* ---------- Settings ---------- */
+function loadSettingsIntoForm(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
+  set("dayStart",settings.dayStart);set("dayEnd",settings.dayEnd);
+  set("nightStart",settings.nightStart);set("nightEnd",settings.nightEnd);
+  set("dayRequired",settings.dayRequired);set("nightRequired",settings.nightRequired);
+}
+function saveShiftSettings(){
+  settings.dayStart=document.getElementById("dayStart").value;
+  settings.dayEnd=document.getElementById("dayEnd").value;
+  settings.nightStart=document.getElementById("nightStart").value;
+  settings.nightEnd=document.getElementById("nightEnd").value;
+  settings.dayRequired=Number(document.getElementById("dayRequired").value);
+  settings.nightRequired=Number(document.getElementById("nightRequired").value);
+  saveAll();
+  if(rosterData.length)regenerateRoster(false);
+  else refreshLiveDataViews();
+  updateDashboard();updateReports();
+  alert("Shift settings saved and roster/report refreshed automatically.");
+}
+function loadConstraintsIntoForm(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
+  set("maxWorkDays",constraints.maxWorkDays);set("minOffDays",constraints.minOffDays);
+  set("nightDayRule",constraints.nightDayRule);set("useAvailability",constraints.useAvailability);
+}
+function saveConstraints(){
+  constraints.maxWorkDays=Number(document.getElementById("maxWorkDays").value);
+  constraints.minOffDays=Number(document.getElementById("minOffDays").value);
+  constraints.nightDayRule=document.getElementById("nightDayRule").value;
+  constraints.useAvailability=document.getElementById("useAvailability").value;
+  saveAll();
+  if(rosterData.length)regenerateRoster(false);
+  else refreshLiveDataViews();
+  updateDashboard();updateReports();
+  alert("Constraints saved and roster/report refreshed automatically.");
+}
+
+/* ---------- Notifications / Users ---------- */
+function renderNotifications(){
+  const list=document.getElementById("notificationList");
+  if(list)list.innerHTML=notifications.length?notifications.slice().reverse().map(n=>`<div class="notification"><span class="dot"></span><div><b>${esc(n.title||"")}</b><div>${esc(n.message||"")}</div><small>${esc(n.time||"")}</small></div></div>`).join(""):`<div class="empty">No notifications.</div>`;
+  const count=document.getElementById("notificationCount");if(count)count.innerText=notifications.length;
+}
+function markAllRead(){notifications=[];saveAll();renderNotifications();}
+function updateNotificationCount(){const c=document.getElementById("notificationCount");if(c)c.innerText=notifications.length;}
+function renderUsers(){
+  const body=document.getElementById("usersTable");if(!body)return;
+  body.innerHTML=users.map((u,i)=>`<tr><td>${esc(u.username)}</td><td>${esc(u.role)}</td><td>${i===0?"Default Admin":`<button class="small-btn danger" data-delete-user="${i}">Delete</button>`}</td></tr>`).join("");
+}
+function deleteUser(i){i=Number(i);if(i===0||!Number.isInteger(i)||i<0||i>=users.length)return false;if(confirm("Delete this user?")){users.splice(i,1);saveAll();renderUsers();}return false;}
+
+/* ---------- Refresh all views ---------- */
+function normalizeEmployeeProfileRoles(){
+  employees.forEach(e=>{
+    if(e.role==="PA") e.role="Manager";
+    if(!["Associate","TL","Manager"].includes(e.role)) e.role="Associate";
+    if(e.role!=="Associate"){
+      e.group="";
+      e.lcCurve="";
+    }
+    e.cab="";
+    e.joiningDate="";
+    e.email="";
+    e.status="Active";
+  });
+}
+function refreshAllViews(){
+  syncProfilesToEmployees();
+  populateEmployeeSelectors();
+  renderEmployees();
+  renderAvailability();
+  renderRoster();
+  updateDashboard();
+  updateReports();
+  renderWeekOffGroups();
+  renderNotifications();
+  loadSettingsIntoForm();
+  loadConstraintsIntoForm();
+  toggleCustomAvailability();
+  try{renderMonthlyOverview();}catch(e){}
+}
+
+window.addEventListener("error",event=>{
+  console.error("SXVD runtime error:",event.error||event.message);
+});
+
+/* ---------- Startup ---------- */
+document.addEventListener("click",function(event){
+  const target=event.target.closest("[data-delete-employee],[data-delete-availability],[data-delete-user]");
+  if(!target)return;
+  event.preventDefault();
+  event.stopPropagation();
+  if(target.hasAttribute("data-delete-employee")) deleteEmployee(target.getAttribute("data-delete-employee"));
+  else if(target.hasAttribute("data-delete-availability")) deleteAvailability(target.getAttribute("data-delete-availability"));
+  else if(target.hasAttribute("data-delete-user")) deleteUser(target.getAttribute("data-delete-user"));
+});
+
+function bindReliableButtons(){
+  const bind=(id,fn)=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.type="button";
+    el.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();try{fn();}catch(err){console.error(err);alert("Action failed: "+(err?.message||err));}});
+  };
+  bind("refreshReportsBtn",()=>updateReports(true));
+  bind("weeklyReportExcelBtn",()=>downloadWeeklyOperationsExcel());
+  const weekSelect=document.getElementById("reportWeekSelect");
+  if(weekSelect)weekSelect.addEventListener("change",()=>populateReportWeekSelector());
+
+  // Re-bind the main roster actions so they work even when the page is opened as a local HTML file.
+  const actions=[
+    ["generateRosterBtn",()=>generateRoster()],
+    ["exportCsvBtn",()=>downloadCSV()],
+    ["exportExcelBtn",()=>downloadExcel()]
+  ];
+  actions.forEach(([id,fn])=>bind(id,fn));
+}
+
+(function init(){
+  try{
+    saveAll();
+    const month=document.getElementById("rosterMonth");
+    if(month&&!month.value){
+      const d=new Date();
+      month.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    }
+    populateEmployeeSelectors();
+    renderEmployees();
+    renderAvailability();
+    renderNotifications();
+    renderWeekOffGroups();
+    loadSettingsIntoForm();
+    loadConstraintsIntoForm();
+    toggleCustomAvailability();
+    if(rosterData.length)renderRoster();
+    updateDashboard();
+    updateReports();
+    installLiveOverviewSync();
+    bindReliableButtons();
+    startAutomaticRosterClock();
+  }catch(err){
+    console.error("SXVD initialization failed:",err);
+    // Even if one optional view fails, keep the action buttons usable.
+    try{bindReliableButtons();}catch(e){console.error(e);}
+  }
+})();
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  try{
+    if(typeof normalizeEmployeeProfileRoles==="function"){
+      normalizeEmployeeProfileRoles();
+      if(typeof saveAll==="function") saveAll();
+    }
+  }catch(err){
+    console.warn("Employee profile normalization skipped:",err);
+  }
+});
+
+/* =========================================================
+   MONTHLY OVERVIEW + SELECTED WEEK EXPORT
+========================================================= */
+function overviewDateRows(){
+  if(!Array.isArray(rosterData)||!rosterData.length)return [];
+
+  const maxDays=Math.max(...rosterData.map(r=>r.shifts?.length||0),7);
+  const start=new Date((rosterStartDate||getRosterStartDate())+"T12:00:00");
+
+  const result=[];
+  for(let d=0;d<maxDays;d++){
+    const dt=new Date(start);
+    dt.setDate(start.getDate()+d);
+
+    const date=dt.toISOString().slice(0,10);
+    const dayRows=rosterData.map(r=>({
+      ...r,
+      shift:r.shifts?.[d]||"OFF"
+    }));
+
+    const day=dayRows.filter(r=>r.shift==="DAY");
+    const night=dayRows.filter(r=>r.shift==="NIGHT");
+    const off=dayRows.filter(r=>r.shift==="OFF");
+
+    const countCurve=(arr,curve)=>
+      arr.filter(r=>(r.lcCurve||"FT1")===curve).length;
+
+    result.push({
+      date,
+      label:dt.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"2-digit"}),
+      day,
+      night,
+      off,
+      dayFt1:countCurve(day,"FT1"),
+      dayFt2:countCurve(day,"FT2"),
+      nightFt1:countCurve(night,"FT1"),
+      nightFt2:countCurve(night,"FT2"),
+      dayMale:day.length,
+      nightMale:night.length,
+      dayCount:day.length,
+      nightCount:night.length,
+      offCount:off.length
+    });
+  }
+  return result;
+}
+
+function renderMonthlyOverview(){
+  const head=document.getElementById("monthlyOverviewHead");
+  const body=document.getElementById("monthlyOverviewBody");
+  if(!head||!body)return;
+
+  const rows=overviewDateRows();
+  if(!rows.length){
+    head.innerHTML="";
+    body.innerHTML='<tr><td class="empty">Generate a roster to populate the monthly overview.</td></tr>';
+    populateReportWeekSelector();
+    return;
+  }
+
+  head.innerHTML=`<tr>
+    <th>Shift / Metric</th>
+    ${rows.map(x=>`<th>${x.label}</th>`).join("")}
+  </tr>`;
+
+  const row=(label,key,cls="")=>
+    `<tr class="${cls}">
+      <td>${label}</td>
+      ${rows.map(x=>`<td>${x[key]}</td>`).join("")}
+    </tr>`;
+
+  body.innerHTML=
+    `<tr class="section-row"><td colspan="${rows.length+1}">09:45-19:45 DAY Shift</td></tr>`+
+    row("FT1","dayFt1")+
+    row("FT2","dayFt2")+
+    row("Total HC","dayCount","total-row")+
+    `<tr class="section-row"><td colspan="${rows.length+1}">20:00 - 06:00 NIGHT Shift</td></tr>`+
+    row("FT1","nightFt1")+
+    row("FT2","nightFt2")+
+    row("Total HC","nightCount","total-row")+
+    row("Week Off / OFF","offCount");
+
+  populateReportWeekSelector();
+}
+
+function populateReportWeekSelector(){
+  const select=document.getElementById("reportWeekSelect");
+  if(!select)return;
+
+  const rows=overviewDateRows();
+  const weeks=[];
+  for(let i=0;i<rows.length;i+=7){
+    const slice=rows.slice(i,i+7);
+    weeks.push({
+      index:weeks.length,
+      rows:slice,
+      start:slice[0].date,
+      end:slice[slice.length-1].date
+    });
+  }
+
+  const old=select.value;
+  select.innerHTML=weeks.map(w=>{
+    const s=new Date(w.start+"T12:00:00");
+    const e=new Date(w.end+"T12:00:00");
+    return `<option value="${w.index}">
+      Week ${w.index+1} — ${s.toLocaleDateString("en-GB",{day:"2-digit",month:"short"})}
+      to ${e.toLocaleDateString("en-GB",{day:"2-digit",month:"short"})}
+    </option>`;
+  }).join("");
+
+  if(weeks.some(w=>String(w.index)===old))select.value=old;
+}
+
+async function downloadSelectedRosterWeek(){
+  const rows=overviewDateRows();
+  if(!rows.length){
+    alert("Please generate a roster first.");
+    return;
+  }
+
+  const index=Number(document.getElementById("reportWeekSelect")?.value||0);
+  const week=rows.slice(index*7,index*7+7);
+  if(!week.length)return;
+
+  const headers=["Metric",...week.map(x=>x.label)];
+  const data=[
+    ["09:45-19:45 DAY Shift"],
+    ["FT1",...week.map(x=>x.dayFt1)],
+    ["FT2",...week.map(x=>x.dayFt2)],
+    ["Total HC",...week.map(x=>x.dayCount)],
+    ["20:00 - 06:00 NIGHT Shift"],
+    ["FT1",...week.map(x=>x.nightFt1)],
+    ["FT2",...week.map(x=>x.nightFt2)],
+    ["Total HC",...week.map(x=>x.nightCount)],
+    ["Week Off / OFF",...week.map(x=>x.offCount)]
+  ];
+
+  if(typeof ExcelJS!=="undefined"){
+    const wb=new ExcelJS.Workbook();
+    const ws=wb.addWorksheet(`Week ${index+1}`);
+    ws.addRow([`SXVD WEEK ${index+1} ROSTER OVERVIEW`]);
+    ws.mergeCells(1,1,1,headers.length);
+
+    ws.addRow(headers);
+    data.forEach(r=>ws.addRow(r));
+
+    ws.getRow(1).font={bold:true,size:15,color:{argb:"FFFFFFFF"}};
+    ws.getRow(1).fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF173F8A"}};
+    ws.getRow(1).alignment={horizontal:"center"};
+
+    ws.getRow(2).eachCell(c=>{
+      c.font={bold:true,color:{argb:"FFFFFFFF"}};
+      c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF173F8A"}};
+    });
+
+    ws.eachRow((r,ri)=>{
+      if(ri>2)r.eachCell(c=>c.alignment={horizontal:"center"});
+    });
+
+    ws.getColumn(1).width=30;
+    for(let i=2;i<=headers.length;i++)ws.getColumn(i).width=16;
+
+    const buffer=await wb.xlsx.writeBuffer();
+    const blob=new Blob([buffer],{
+      type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=`SXVD_Week_${index+1}_Overview.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    return;
+  }
+
+  // Excel-compatible fallback
+  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+
+  const table=data.map((r,i)=>
+    `<tr>${r.map(v=>`<td>${esc(v)}</td>`).join("")}</tr>`
+  ).join("");
+
+  const htmlFile=`<html><head><meta charset="UTF-8"><style>
+    table{border-collapse:collapse;font-family:Arial}
+    th,td{border:1px solid #ccc;padding:8px}
+    td:first-child{font-weight:bold}
+  </style></head><body>
+  <table><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join("")}</tr>${table}</table>
+  </body></html>`;
+
+  const blob=new Blob([htmlFile],{type:"application/vnd.ms-excel"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=`SXVD_Week_${index+1}_Overview.xls`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const b=document.getElementById("weeklyReportExcelBtn");
+  if(b)b.addEventListener("click",downloadSelectedRosterWeek);
+
+  const s=document.getElementById("reportWeekSelect");
+  if(s)s.addEventListener("change",()=>{});
+
+  setTimeout(()=>{
+    try{renderMonthlyOverview();}catch(e){console.warn("Monthly overview:",e);}
+  },0);
+});
+
+</script>
+
+</body>
+</html>
